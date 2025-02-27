@@ -2,14 +2,27 @@
   "name": "shhhhh.chat",
   "version": "1.0.50",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts"
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
-    "elysia": "latest"
+    "@tailwindcss/postcss": "^4.0.9",
+    "animate.css": "^4.1.1",
+    "daisyui": "^5.0.0-beta.9",
+    "elysia": "latest",
+    "next": "^15.2.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "bun-types": "latest"
+    "@types/react": "19.0.10",
+    "autoprefixer": "^10.4.20",
+    "bun-types": "latest",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.0.9",
+    "typescript": "5.7.3"
   },
   "module": "src/index.js"
 }
