@@ -31,7 +31,7 @@ export default function Home() {
         if (process.env.NODE_ENV === 'development') {
           ws = new WebSocket(`ws://localhost:3000/api/ws`);
         } else {
-          ws = new WebSocket(`wss://${process.env.NEXT_PUBLIC_SITE_URL}/api/ws`);
+          ws = new WebSocket(`ws://${process.env.NEXT_PUBLIC_SITE_URL}/api/ws`);
         }
 
         ws.onopen = () => {
