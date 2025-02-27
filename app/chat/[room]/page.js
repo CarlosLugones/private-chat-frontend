@@ -15,6 +15,12 @@ export default function ChatRoom({ params }) {
   const router = useRouter();
 
   const leave = () => {
+    ws.send(JSON.stringify({
+      system: true,
+      type: "LEAVE_ROOM",
+      username: username,
+      roomId: room
+    }));
     localStorage.removeItem("username");
     localStorage.removeItem("roomname");
     router.push("/");
@@ -35,6 +41,10 @@ export default function ChatRoom({ params }) {
     }
     
     setUsername(storedUsername);
+
+    if (ws) {
+      return;
+    }
     
     // Connect to WebSocket
     let wsConnection;
@@ -48,11 +58,11 @@ export default function ChatRoom({ params }) {
       console.log("WebSocket connected");
       setConnected(true);
 
-      messages.push({
+      setMessages(prev => [...prev, {
         system: true,
         type: "CONNECTED",
         content: "Connected to the chat server"
-      });
+      }]);
       
       // Join the room
       wsConnection.send(JSON.stringify({
@@ -71,21 +81,21 @@ export default function ChatRoom({ params }) {
     wsConnection.onclose = () => {
       console.log("WebSocket disconnected");
       setConnected(false);
-      messages.push({
+      setMessages(prev => [...prev, {
         system: true,
         type: "DISCONNECTED",
         content: "Disconnected from the chat server"
-      });
+      }]);
     };
     
     wsConnection.onerror = (error) => {
       console.log("WebSocket error:", error);
       setConnected(false);
-      messages.push({
-        system: true,
-        type: "ERROR",
-        content: error.message
-      });
+      // setMessages(prev => [...prev, {
+      //   system: true,
+      //   type: "ERROR",
+      //   content: error
+      // }]);
     };
     
     setWs(wsConnection);
@@ -124,7 +134,7 @@ export default function ChatRoom({ params }) {
           <h1 className="text-xl font-bold">#{room}</h1>
           <button 
             onClick={leave}
-            className="btn btn-sm btn-outline"
+            className="btn btn-sm btn-outline btn-warning"
           >
             Leave
           </button>
