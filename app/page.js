@@ -7,18 +7,57 @@ import Image from "next/image";
 export default function Home() {
   const [username, setUsername] = useState("");
   const [roomname, setRoomname] = useState("");
+  const [error, setError] = useState("");
   const router = useRouter();
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setError("");
     
     if (username.trim() && roomname.trim()) {
       // Store data in localStorage for use in chat page
       localStorage.setItem("username", username.trim());
       localStorage.setItem("roomname", roomname.trim());
-      
-      // Navigate to the chat page (you'd need to create this page)
-      router.push("/chat/" + roomname.trim());
+
+      // Connect to websocket
+      if (process.env.NEXT_PUBLIC_SITE_URL === undefined) {
+        console.error("NEXT_PUBLIC_SITE_URL is not defined in .env.local");
+        setError("Configuration error. Please try again later.");
+        return;
+      }
+
+      let ws = null;
+      try {
+        if (process.env.NODE_ENV === 'development') {
+          ws = new WebSocket(`ws://localhost:3000/api/ws`);
+        } else {
+          ws = new WebSocket(`wss://${process.env.NEXT_PUBLIC_SITE_URL}/api/ws`);
+        }
+
+        ws.onopen = () => {
+          console.log("WebSocket connected successfully");
+          ws.send(
+            JSON.stringify(
+              {
+                  type: "join",
+                  username: username.trim(),
+                  roomname: roomname.trim() 
+              }
+            )
+          );
+          
+          // Navigate to the chat page after connection is established
+          router.push(`/chat/${roomname.trim()}`);
+        };
+        
+        ws.onerror = (error) => {
+          console.error("WebSocket error:", error);
+          setError("Failed to connect to the chat server. Please try again.");
+        };
+      } catch (error) {
+        console.error("WebSocket connection error:", error);
+        setError("Failed to connect to the chat server. Please try again.");
+      }
     }
   };
 
@@ -78,6 +117,12 @@ export default function Home() {
               >
                 Join chat
               </button>
+
+              {error && (
+                <div className="mt-4 text-red-500 text-center">
+                  {error}
+                </div>
+              )}
 
               <div className="text-center mt-6">
                 Or join the <button className="link" onClick={() => setRoomname('lobby')}>#lobby</button>
