@@ -52,15 +52,16 @@ export default function ChatPage() {
           {/* Chat messages */}
           <div className="flex-1 p-6 overflow-y-auto">
             {messages.map((msg, index) => (
-              <div
-                key={index}
-                className={`mb-4 max-w-[80%] animate__animated animate__fadeIn ${
-                  msg.sender === "user"
-                    ? "ml-auto bg-blue-600 text-white rounded-tl-xl rounded-tr-xl rounded-bl-xl"
-                    : "bg-gray-100 rounded-tl-xl rounded-tr-xl rounded-br-xl"
-                } p-3`}
-              >
-                {msg.text}
+              <div key={index} className="flex flex-col mb-4">
+                <div
+                  className={`chat-bubble w-fit max-w-[80%] break-words animate__animated animate__fadeIn ${
+                    msg.sender === "user"
+                      ? "ml-auto bg-blue-600 text-white rounded-tl-xl rounded-tr-xl rounded-bl-xl"
+                      : "bg-gray-100 rounded-tl-xl rounded-tr-xl rounded-br-xl"
+                  } p-3`}
+                >
+                  {msg.text}
+                </div>
               </div>
             ))}
             <div ref={messagesEndRef} />
