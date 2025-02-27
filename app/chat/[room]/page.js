@@ -15,12 +15,16 @@ export default function ChatRoom({ params }) {
   const router = useRouter();
 
   const leave = () => {
-    // localStorage.removeItem("username");
-    // localStorage.removeItem("roomname");
-    // router.push("/");
+    localStorage.removeItem("username");
+    localStorage.removeItem("roomname");
+    router.push("/");
   };
 
   useEffect(() => {
+    if (typeof window == 'undefined') {
+      return;
+    }
+
     // Get username from localStorage
     const storedUsername = localStorage.getItem("username");
     const storedRoom = localStorage.getItem("roomname");
@@ -43,6 +47,12 @@ export default function ChatRoom({ params }) {
     wsConnection.onopen = () => {
       console.log("WebSocket connected");
       setConnected(true);
+
+      messages.push({
+        system: true,
+        type: "CONNECTED",
+        content: "Connected to the chat server"
+      });
       
       // Join the room
       wsConnection.send(JSON.stringify({
@@ -61,11 +71,21 @@ export default function ChatRoom({ params }) {
     wsConnection.onclose = () => {
       console.log("WebSocket disconnected");
       setConnected(false);
+      messages.push({
+        system: true,
+        type: "DISCONNECTED",
+        content: "Disconnected from the chat server"
+      });
     };
     
     wsConnection.onerror = (error) => {
-      console.error("WebSocket error:", error);
+      console.log("WebSocket error:", error);
       setConnected(false);
+      messages.push({
+        system: true,
+        type: "ERROR",
+        content: error.message
+      });
     };
     
     setWs(wsConnection);
@@ -101,9 +121,9 @@ export default function ChatRoom({ params }) {
     <div className="flex flex-col h-screen max-h-screen bg-base-200">
       <div className="bg-base-100 p-4 border-b border-gray-700">
         <div className="flex justify-between items-center">
-          <h1 className="text-xl font-bold">Room: #{room}</h1>
+          <h1 className="text-xl font-bold">#{room}</h1>
           <button 
-            onClick={leave()}
+            onClick={leave}
             className="btn btn-sm btn-outline"
           >
             Leave
@@ -113,10 +133,10 @@ export default function ChatRoom({ params }) {
       
       <div className="flex-1 overflow-y-auto p-4">
         {messages.map((msg, index) => (
-          <div key={index} className={`chat ${msg.system === true ? 'chat-system' : (msg.username === username ? 'chat-end' : 'chat-start')}`}>
+          <div key={index} className={`chat ${msg.system === true ? 'chat-system' : (msg.username === username ? 'chat-end' : 'chat-start')} animate__animated animate__fadeIn`}>
             {!msg.system && (
-              <div class="chat-image avatar">
-                <div class="w-10 rounded-full">
+              <div className="chat-image avatar">
+                <div className="w-8 rounded-full">
                   <img src={`https://avatar.vercel.sh/${msg.username}`} />
                 </div>
               </div>
@@ -126,17 +146,16 @@ export default function ChatRoom({ params }) {
                 <>
                   {msg.username}
                   <time className="text-xs opacity-50">
-                    {new Date(msg.timestamp).toLocaleString()}
+                    {new Date(msg.timestamp).toLocaleTimeString()}
                   </time>
                 </>
               )}
             </div>
-            <div className={`chat-bubble ${msg.system === true ? 'chat-bubble-system bg-gray-600' : (msg.username === username ? 'chat-bubble-primary' : 'chat-bubble-accent')}`}>
+            <div className={`chat-bubble ${msg.system === true ? 'chat-bubble-system bg-gray-600' : (msg.username === username ? 'chat-bubble-primary' : 'chat-bubble-info')}`}>
               {msg.content}
             </div>
             {!msg.system && (
-              <div class="chat-footer opacity-50">
-                Delivered
+              <div className="chat-footer opacity-50">
               </div>
             )}
           </div>

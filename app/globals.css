@@ -11,8 +11,8 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-.chat-bubble {
-  animation-duration: 0.5s !important;
+.chat {
+  animation-duration: 0.2s !important;
 }
 
 .chat-system {
