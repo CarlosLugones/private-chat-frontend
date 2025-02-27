@@ -14,3 +14,7 @@ body {
 .chat-bubble {
   animation-duration: 0.5s !important;
 }
+
+.chat-system {
+  @apply flex items-center justify-center;
+}

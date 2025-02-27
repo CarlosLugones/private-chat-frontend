@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "shhhhh.chat",
+  title: "Private Chat",
   description: "No history, no logs, no tracking, no authentication. Private, secure, ephemeral. Just chat.",
 };
 

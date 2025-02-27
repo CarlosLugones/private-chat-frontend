@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 
 export default function Home() {
   const [username, setUsername] = useState("");
@@ -20,46 +19,58 @@ export default function Home() {
       localStorage.setItem("roomname", roomname.trim());
 
       // Connect to websocket
-      if (process.env.NEXT_PUBLIC_SITE_URL === undefined) {
-        console.error("NEXT_PUBLIC_SITE_URL is not defined in .env.local");
-        setError("Configuration error. Please try again later.");
-        return;
-      }
+      // if (process.env.NEXT_PUBLIC_SITE_URL === undefined) {
+      //   console.error("NEXT_PUBLIC_SITE_URL is not defined in .env.local");
+      //   setError("Configuration error. Please try again later.");
+      //   return;
+      // }
 
-      let ws = null;
-      try {
-        if (process.env.NODE_ENV === 'development') {
-          ws = new WebSocket(`ws://localhost:3000/api/ws`);
-        } else {
-          ws = new WebSocket(`wss://${process.env.NEXT_PUBLIC_SITE_URL}/api/ws`);
-        }
+      // let ws = null;
+      // try {
+      //   if (process.env.NODE_ENV === 'development') {
+      //     ws = new WebSocket(`ws://localhost:8000/ws`);
+      //   } else {
+      //     ws = new WebSocket(`wss://${process.env.NEXT_PUBLIC_SITE_URL}/ws`);
+      //   }
 
-        ws.onopen = () => {
-          console.log("WebSocket connected successfully");
-          ws.send(
-            JSON.stringify(
-              {
-                  type: "join",
-                  username: username.trim(),
-                  roomname: roomname.trim() 
-              }
-            )
-          );
+      //   ws.onopen = () => {
+      //     console.log("WebSocket connected successfully");
+      //     ws.send(
+      //       JSON.stringify(
+      //         {
+      //             type: "join",
+      //             username: username.trim(),
+      //             roomname: roomname.trim() 
+      //         }
+      //       )
+      //     );
           
-          // Navigate to the chat page after connection is established
-          router.push(`/chat/${roomname.trim()}`);
-        };
+      //     // Navigate to the chat page after connection is established
+      //     router.push(`/chat/${roomname.trim()}`);
+      //   };
         
-        ws.onerror = (error) => {
-          console.error("WebSocket error:", error);
-          setError("Failed to connect to the chat server. Please try again.");
-        };
-      } catch (error) {
-        console.error("WebSocket connection error:", error);
-        setError("Failed to connect to the chat server. Please try again.");
-      }
+      //   ws.onerror = (error) => {
+      //     console.error("WebSocket error:", error);
+      //     setError("Failed to connect to the chat server. Please try again.");
+      //   };
+      // } catch (error) {
+      //   console.error("WebSocket connection error:", error);
+      //   setError("Failed to connect to the chat server. Please try again.");
+      // }
+
+      router.push(`/chat/${roomname.trim()}`);
     }
   };
+  
+  // Load values from localStorage on component mount
+  useEffect(() => {
+    // Only access localStorage on the client side
+    const storedUsername = localStorage.getItem("username");
+    const storedRoomname = localStorage.getItem("roomname");
+    
+    if (storedUsername) setUsername(storedUsername);
+    if (storedRoomname) setRoomname(storedRoomname);
+  }, []);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-base-200">
@@ -68,7 +79,7 @@ export default function Home() {
           <div className="card-body p-8">
             <div className="text-center mb-6">
               <h1 className="text-3xl font-bold mb-2">
-                Shhhhh 🤫
+                Private Chat
               </h1>
               <p className="text-base-content/70">Join or create a private chat room</p>
             </div>
