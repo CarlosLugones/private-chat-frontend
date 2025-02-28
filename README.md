@@ -1,15 +1,49 @@
-# Elysia with Bun runtime
+# Private Chat
+
+A secure, ephemeral chat application with no history, logs, tracking, or authentication required.
+
+## Features
+
+- Real-time messaging via WebSockets
+- No message history or logs stored
+- Private chat rooms
+- No account creation required
+- Simple and intuitive UI
+
+## Technology Stack
+
+- Next.js
+- WebSockets for real-time communication
+- Tailwind CSS with DaisyUI for styling
 
 ## Getting Started
-To get started with this template, simply paste this command into your terminal:
+
+### Prerequisites
+
+- Bun 1.0.0 or higher
+
+### Development
+
+1. Clone the repository
+
+2. Install dependencies
 ```bash
-bun create elysia ./elysia-example
+bun install
 ```
 
-## Development
-To start the development server run:
+3. Start the development server
 ```bash
 bun run dev
 ```
 
-Open http://localhost:3000/ with your browser to see the result.
+4. Open http://localhost:3000/ on your browser to test the app.
+
+## Deploy to Vercel
+
+1. Fork this repository
+
+2. Create a new project on Vercel
+
+3. Connect your GitHub repository
+
+4. Deploy the project

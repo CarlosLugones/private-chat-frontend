@@ -25,13 +25,21 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env*.local
+.env
 
 # vercel
 .vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
 
 **/*.trace
 **/*.zip
@@ -40,5 +48,3 @@ yarn-error.log*
 **/*.log
 package-lock.json
 **/*.bun
-
-.env
