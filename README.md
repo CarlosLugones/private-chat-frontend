@@ -45,6 +45,7 @@ bun install
 
 3. Create a `.env.local` file in the root directory and add:
 ```
+NEXT_PUBLIC_FRONTEND_URL=localhost:3000
 NEXT_PUBLIC_BACKEND_URL=localhost:8000
 ```
 
