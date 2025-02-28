@@ -78,7 +78,13 @@ export function useWebSocket({ room, username, enabled, onMessage, onConnectionC
     console.log(`Initializing WebSocket connection (attempt ${reconnectAttempts.current + 1})`);
     
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'localhost:8000';
-    const socket = new WebSocket(`ws://${backendUrl}/ws`);
+
+    let socket;
+    if (process.env.NODE_ENV === 'production') {
+      socket = new WebSocket(`wss://${backendUrl}/ws`);
+    } else {
+      socket = new WebSocket(`ws://${backendUrl}/ws`);
+    }
     
     socket.onopen = () => {
       console.log('WebSocket connected');
