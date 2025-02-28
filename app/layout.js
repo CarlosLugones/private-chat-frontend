@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 const inter = Inter({ subsets: ['latin'] });
 
 const frontendUrl = process.env.NEXT_PUBLIC_FRONTEND_URL;
-const coverImageUrl = frontendUrl + '/opengrah-image.png';
+const coverImageUrl = frontendUrl + '/opengraph-image.png';
 
 export const metadata = {
   title: 'Private Chat',
