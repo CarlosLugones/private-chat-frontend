@@ -7,7 +7,6 @@ export function useWebSocket({ room, username, enabled, onMessage, onConnectionC
   const [permanentlyFailed, setPermanentlyFailed] = useState(false);
   const ws = useRef(null);
   const reconnectAttempts = useRef(0);
-  const maxReconnectAttempts = 5;
   const baseReconnectDelay = 1000; // starting with 1 second
   const connectingRef = useRef(false);
   const reconnectTimeoutRef = useRef(null);
@@ -47,34 +46,23 @@ export function useWebSocket({ room, username, enabled, onMessage, onConnectionC
     
     reconnectingRef.current = true;
     
-    if (reconnectAttempts.current < maxReconnectAttempts) {
-      // Increment before calculating delay and scheduling the reconnection
-      reconnectAttempts.current += 1;
-      
-      // Exponential backoff: 1s, 2s, 4s, 8s, 16s
-      const delay = baseReconnectDelay * Math.pow(2, reconnectAttempts.current - 1);
-      console.log(`Reconnecting (attempt ${reconnectAttempts.current}/${maxReconnectAttempts}) in ${delay/1000}s...`);
-      
-      // Clear any existing timeout
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-      }
-      
-      // Store the timeout ID so we can clear it if needed
-      reconnectTimeoutRef.current = setTimeout(() => {
-        reconnectTimeoutRef.current = null;
-        reconnectingRef.current = false;
-        initializeWebSocket();
-      }, delay);
-    } else {
-      console.log('Max reconnection attempts reached. Giving up.');
-      setPermanentlyFailed(true);
-      reconnectingRef.current = false;
-      onError?.({ 
-        message: 'Unable to connect after multiple attempts',
-        permanent: true
-      });
+    // Increment before calculating delay and scheduling the reconnection
+    reconnectAttempts.current += 1;
+    
+    // Exponential backoff: 1s, 2s, 4s, 8s, 16s
+    const delay = baseReconnectDelay * Math.pow(2, reconnectAttempts.current - 1);
+    
+    // Clear any existing timeout
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
     }
+    
+    // Store the timeout ID so we can clear it if needed
+    reconnectTimeoutRef.current = setTimeout(() => {
+      reconnectTimeoutRef.current = null;
+      reconnectingRef.current = false;
+      initializeWebSocket();
+    }, delay);
   }, [enabled, onError, permanentlyFailed]);
 
   // Initialize WebSocket connection
@@ -87,7 +75,7 @@ export function useWebSocket({ room, username, enabled, onMessage, onConnectionC
     if (!enabled || connectingRef.current || ws.current || permanentlyFailed || reconnectingRef.current) return;
     
     connectingRef.current = true;
-    console.log(`Initializing WebSocket connection (attempt ${reconnectAttempts.current + 1}/${maxReconnectAttempts + 1})`);
+    console.log(`Initializing WebSocket connection (attempt ${reconnectAttempts.current + 1})`);
     
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'localhost:8000';
     const socket = new WebSocket(`ws://${backendUrl}/ws`);
