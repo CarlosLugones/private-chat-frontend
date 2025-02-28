@@ -1,6 +1,19 @@
 # Private Chat Frontend
 
-A secure, ephemeral chat application with no history, logs, tracking, or authentication required.
+A secure, ephemeral chat application with no history, logs, tracking, or authentication.
+
+[![Node.js Version](https://img.shields.io/badge/Node.js-v22.13.1-brightgreen.svg)](https://nodejs.org/)
+[![Bun Version](https://img.shields.io/badge/bun-1.1.27-blue.svg)](https://bun.sh/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/CarlosLugones/private-chat-frontend/graphs/commit-activity)
+[![GitHub issues](https://img.shields.io/github/issues/CarlosLugones/private-chat-frontend.svg)](https://github.com/CarlosLugones/private-chat-frontend/issues)
+[![Next.js](https://img.shields.io/badge/Next.js-black?style=flat&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![Vercel](https://img.shields.io/badge/Vercel-deployed-000000?style=flat&logo=vercel&logoColor=white)](https://vercel.com)
+
+This frontend requires a running instance of the [backend server](https://github.com/CarlosLugones/private-chat-backend).
+
+You can host your own instance, or use the one hosted by [Diamonds VPN](https://vpn.diamonds) at [chat.vpn.diamonds](https://chat.vpn.diamonds).
 
 ## Features
 
@@ -11,6 +24,10 @@ A secure, ephemeral chat application with no history, logs, tracking, or authent
 - Simple and intuitive UI
 
 ## Getting Started
+
+### Deployment
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/git/external?repository-url=https%3A%2F%2Fgithub.com%2FCarlosLugones%2Fprivate-chat-frontend)
 
 ### Prerequisites
 
