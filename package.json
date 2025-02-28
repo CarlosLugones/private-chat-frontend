@@ -1,6 +1,8 @@
 {
-  "name": "shhhhh.chat",
-  "version": "1.0.50",
+  "name": "private-chat-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A secure, ephemeral chat application with no history or logs",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
@@ -11,11 +13,9 @@
     "@tailwindcss/postcss": "^4.0.9",
     "animate.css": "^4.1.1",
     "daisyui": "^5.0.0-beta.9",
-    "elysia": "latest",
     "next": "^15.2.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "ws": "^8.18.1"
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@types/react": "19.0.10",
@@ -25,5 +25,21 @@
     "tailwindcss": "^4.0.9",
     "typescript": "5.7.3"
   },
-  "module": "src/index.js"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/private-chat-frontend.git"
+  },
+  "keywords": [
+    "chat",
+    "private",
+    "secure",
+    "websocket",
+    "nextjs"
+  ],
+  "author": "Carlos Lugones",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/CarlosLugones/private-chat-frontend/issues"
+  },
+  "homepage": "https://github.com/CarlosLugones/private-chat-frontend#readme"
 }
