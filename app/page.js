@@ -117,6 +117,12 @@ export default function Home() {
           <a href="https://github.com/CarlosLugones/private-chat-frontend" target="_blank">
             Code
           </a>
+          <a href="https://github.com/CarlosLugones/private-chat-frontend" target="_blank">
+            News
+          </a>
+          <a href="https://blog.carloslugones.com/private-chat" target="_blank">
+            Blog
+          </a>
         </div>
       </div>
     </div>
