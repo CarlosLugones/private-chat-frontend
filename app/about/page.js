@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
 
 export default function About() {
   return (
@@ -32,7 +31,7 @@ export default function About() {
               
               <figure className="flex flex-col items-center mt-10">
                   <blockquote>
-                      <p className="text-base-content/70 italic">
+                      <p className="text-base-content/70 italic text-center">
                         "We took privacy for granted. Now we have to take it back."
                       </p>
                   </blockquote>
