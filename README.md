@@ -31,7 +31,12 @@ A secure, ephemeral chat application with no history, logs, tracking, or authent
 bun install
 ```
 
-3. Start the development server
+3. Write the environment variables in a `.env` file
+```bash
+NEXT_PUBLIC_BACKEND_URL=ws://localhost:8000/api/ws
+```
+
+4. Start the development server
 ```bash
 bun run dev
 ```
@@ -46,4 +51,6 @@ bun run dev
 
 3. Connect your GitHub repository
 
-4. Deploy the project
+4. Setup the environment variables
+
+5. Deploy the project

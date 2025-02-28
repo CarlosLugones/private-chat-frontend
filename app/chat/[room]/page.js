@@ -51,7 +51,7 @@ export default function ChatRoom({ params }) {
     if (process.env.NODE_ENV === 'development') {
       wsConnection = new WebSocket(`ws://localhost:8000/ws`);
     } else {
-      wsConnection = new WebSocket(`wss://${process.env.NEXT_PUBLIC_SITE_URL}/ws`);
+      wsConnection = new WebSocket(`wss://${process.env.NEXT_PUBLIC_BACKEND_URL}/ws`);
     }
     
     wsConnection.onopen = () => {
@@ -134,7 +134,7 @@ export default function ChatRoom({ params }) {
           <h1 className="text-xl font-bold">#{room}</h1>
           <button 
             onClick={leave}
-            className="btn btn-sm btn-outline btn-warning"
+            className="btn btn-sm btn-outline"
           >
             Leave
           </button>
