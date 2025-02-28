@@ -46,13 +46,6 @@ export default function ChatRoom() {
     
     setUsername(storedUsername);
     setReady(true); // Mark component as ready for WebSocket connection
-    
-    // Add debug message to messages
-    // setMessages(prev => [...prev, {
-    //   system: true,
-    //   type: "INFO",
-    //   content: `Initializing with username: ${storedUsername} in room: ${room}`
-    // }]);
   }, [room, router]);
   
   // Custom WebSocket hook - only connected once username is set and component is ready
@@ -66,27 +59,8 @@ export default function ChatRoom() {
     },
     onConnectionChange: (status) => {
       console.log("WebSocket connection status changed:", status);
-      if (status) {
-        // setMessages(prev => [...prev, {
-        //   system: true,
-        //   type: "CONNECTED",
-        //   content: "Connected to the chat server"
-        // }]);
-      } else {
-        // setMessages(prev => [...prev, {
-        //   system: true,
-        //   type: "DISCONNECTED",
-        //   content: "Disconnected from the chat server"
-        // }]);
-      }
     },
     onError: (error) => {
-      // console.error("WebSocket error:", error);
-      // setMessages(prev => [...prev, {
-      //   system: true,
-      //   type: "ERROR",
-      //   content: `Connection error: ${error.message || "Unknown error"}`
-      // }]);
     }
   });
 
@@ -102,11 +76,6 @@ export default function ChatRoom() {
       });
     }
   }, [connected, username, room, sendWebSocketMessage]);
-
-  // Debug connection status
-  useEffect(() => {
-    console.log("Connection status:", connected, "Username:", username, "Room:", room);
-  }, [connected, username, room]);
 
   const leave = () => {
     if (connected) {
