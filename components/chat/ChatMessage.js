@@ -12,7 +12,10 @@ import FormattedMessage from "./FormattedMessage";
  * @param {boolean} props.isTimeBreak - Whether this message starts a new thread after a time gap
  */
 const ChatMessage = ({ message, isCurrentUser, isConnectedToPrevious, isLastFromUser, isTimeBreak }) => {
-  const { system, username, content, timestamp } = message;
+  const { system, username, content, timestamp, type, imageData, caption } = message;
+  
+  // Determine if this is an image message
+  const isImageMessage = type === "IMAGE_MESSAGE";
   
   // Determine chat position class based on message type
   const chatPositionClass = system ? 'chat-system' : (
@@ -67,7 +70,12 @@ const ChatMessage = ({ message, isCurrentUser, isConnectedToPrevious, isLastFrom
       </div>
       
       <div className={`chat-bubble ${bubbleClass} ${carotClass}`}>
-        <FormattedMessage text={content} />
+        <FormattedMessage 
+          text={content} 
+          isImageMessage={isImageMessage} 
+          imageData={imageData} 
+          imageCaption={caption} 
+        />
       </div>
       
       {!system && <div className="chat-footer opacity-50"></div>}

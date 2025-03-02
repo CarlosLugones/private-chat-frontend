@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { detectLanguage, highlightCode, copyCodeToClipboard, getSafeLanguage } from '../../utils/codeHighlightUtils';
+import ImageMessage from './ImageMessage';
 
 /**
  * Formats message text to highlight:
@@ -9,9 +10,15 @@ import { detectLanguage, highlightCode, copyCodeToClipboard, getSafeLanguage } f
  * - Usernames (starting with @)
  * - Inline code (wrapped in single backticks)
  * - Code blocks (wrapped in triple backticks)
+ * - Images (with special handling)
  * - Preserves line breaks
  */
-export default function FormattedMessage({ text }) {
+export default function FormattedMessage({ text, isImageMessage, imageData, imageCaption }) {
+  // Special handling for image messages
+  if (isImageMessage && imageData) {
+    return <ImageMessage imageData={imageData} caption={imageCaption} />;
+  }
+  
   const [copiedIndex, setCopiedIndex] = useState(null);
   
   // Add useEffect to load Prism styles

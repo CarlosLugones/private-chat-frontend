@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { handleEmojiShortcodes } from "../../utils/emojiUtils";
 import EmojiPicker from "./EmojiPicker";
+import ImagePreviewModal from "./ImagePreviewModal";
 
 /**
  * ChatInput - Component for the chat message input form
@@ -20,6 +21,7 @@ const ChatInput = ({ message, setMessage, sendMessage, isConnected, users = [] }
   const mentionMenuRef = useRef(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [textareaHeight, setTextareaHeight] = useState(40); // Default height
+  const [pastedImage, setPastedImage] = useState(null);
 
   // Filter users based on the mention query
   const filteredUsers = users.filter(user => 
@@ -49,6 +51,48 @@ const ChatInput = ({ message, setMessage, sendMessage, isConnected, users = [] }
     // If Enter is pressed with Shift, allow new line (default behavior)
   };
   
+  // Handle paste event to capture images
+  const handlePaste = (e) => {
+    const items = e.clipboardData?.items;
+    
+    if (!items) return;
+    
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        e.preventDefault(); // Prevent default paste behavior
+        
+        const blob = items[i].getAsFile();
+        const reader = new FileReader();
+        
+        reader.onload = (event) => {
+          // Set the pasted image data (base64)
+          setPastedImage(event.target.result);
+        };
+        
+        reader.readAsDataURL(blob);
+        return;
+      }
+    }
+  };
+
+  // Send image with optional caption
+  const handleSendImage = (imageData, caption) => {
+    if (isConnected) {
+      // Send as a special image message type
+      sendMessage(null, {
+        type: "IMAGE_MESSAGE",
+        imageData: imageData,
+        caption: caption
+      });
+      setPastedImage(null);
+    }
+  };
+
+  // Cancel image sending
+  const handleCancelImage = () => {
+    setPastedImage(null);
+  };
+
   // Auto-adjust textarea height based on content
   const adjustTextareaHeight = () => {
     if (inputRef.current) {
@@ -177,6 +221,13 @@ const ChatInput = ({ message, setMessage, sendMessage, isConnected, users = [] }
 
   return (
     <div className="p-4 bg-base-100 border-t border-gray-700 relative">
+      {/* Image Preview Modal */}
+      <ImagePreviewModal 
+        imageData={pastedImage}
+        onSend={handleSendImage}
+        onCancel={handleCancelImage}
+      />
+      
       {showEmojiPicker && (
         <div className="absolute bottom-full right-0 mb-2 z-20">
           <EmojiPicker 
@@ -202,6 +253,7 @@ const ChatInput = ({ message, setMessage, sendMessage, isConnected, users = [] }
             value={message}
             onChange={handleMessageChange}
             onKeyDown={handleKeyPress}
+            onPaste={handlePaste}
             placeholder={isConnected ? "Type a message..." : "Connecting..."}
             className="w-full px-3 py-2 border border-gray-500 rounded-none focus:outline-none focus:ring-2 focus:ring-primary resize-none"
             disabled={!isConnected}

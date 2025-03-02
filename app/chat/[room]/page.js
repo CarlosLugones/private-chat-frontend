@@ -8,7 +8,7 @@ import ChatMessage from "../../../components/chat/ChatMessage";
 import ChatInput from "../../../components/chat/ChatInput";
 import UsernameModal from "../../../components/chat/UsernameModal";
 
-const RENDERABLE_TYPES = ["JOIN_ROOM", "LEAVE_ROOM", "CHAT_MESSAGE", "ERROR"];
+const RENDERABLE_TYPES = ["JOIN_ROOM", "LEAVE_ROOM", "CHAT_MESSAGE", "IMAGE_MESSAGE", "ERROR"];
 
 /**
  * ChatRoom - A real-time chat room component using WebSockets
@@ -128,9 +128,26 @@ export default function ChatRoom() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
   
-  const handleSendMessage = (e) => {
-    e.preventDefault();
+  // Enhanced sendMessage function with support for image messages
+  const handleSendMessage = (e, customData = null) => {
+    if (e) e.preventDefault();
     
+    // If custom data is provided (e.g., image message), send that instead
+    if (customData && connected) {
+      // Add common message properties
+      const fullMessage = {
+        ...customData,
+        system: false,
+        roomId: room,
+        username: username,
+        timestamp: new Date().toISOString()
+      };
+      
+      sendWebSocketMessage(fullMessage);
+      return;
+    }
+    
+    // Regular text message
     if (message.trim() && connected) {
       sendWebSocketMessage({
         system: false,
