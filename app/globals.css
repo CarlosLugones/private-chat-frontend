@@ -18,3 +18,7 @@ body {
 .chat-system {
   @apply flex items-center justify-center;
 }
+
+.animate__fadeInLeft {
+  animation-duration: 0.2s !important;
+}

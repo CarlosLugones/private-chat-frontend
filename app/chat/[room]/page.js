@@ -7,6 +7,8 @@ import { useWebSocket } from "../../../hooks/useWebSocket";
 import ChatMessage from "../../../components/chat/ChatMessage";
 import ChatInput from "../../../components/chat/ChatInput";
 
+const RENDERABLE_TYPES = ["JOIN_ROOM", "LEAVE_ROOM", "CHAT_MESSAGE"];
+
 /**
  * ChatRoom - A real-time chat room component using WebSockets
  * 
@@ -25,6 +27,8 @@ export default function ChatRoom() {
   const [message, setMessage] = useState("");
   const [username, setUsername] = useState("");
   const [ready, setReady] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [showUserList, setShowUserList] = useState(false);
   const messagesEndRef = useRef(null);
   const router = useRouter();
   
@@ -55,7 +59,16 @@ export default function ChatRoom() {
     enabled: ready && !!username && !!room,
     onMessage: (data) => {
       console.log("Received message:", data);
-      setMessages(prev => [...prev, data]);
+      if (RENDERABLE_TYPES.includes(data.type)) {
+        setMessages(prev => [...prev, data]);
+      }
+      switch (data.type) {
+        case "USER_LIST":
+          setUsers(data.users || []);
+          break;
+        default:
+          break;
+      }
     },
     onConnectionChange: (status) => {
       console.log("WebSocket connection status changed:", status);
@@ -117,6 +130,10 @@ export default function ChatRoom() {
     }
   };
   
+  const toggleUserList = () => {
+    setShowUserList(prev => !prev);
+  };
+  
   return (
     <div className="flex flex-col h-screen max-h-screen bg-base-200">
       <div className="bg-base-100 p-4 border-b border-gray-700">
@@ -129,6 +146,13 @@ export default function ChatRoom() {
           </div>
           <div className="flex items-center gap-2">
             <button 
+              onClick={toggleUserList}
+              className="btn btn-sm btn-outline"
+              aria-label="Toggle user list"
+            >
+              Users ({users.length})
+            </button>
+            <button 
               onClick={leave}
               className="btn btn-sm btn-outline"
               aria-label="Leave chat room"
@@ -139,23 +163,48 @@ export default function ChatRoom() {
         </div>
       </div>
       
-      <div className="flex-1 overflow-y-auto p-4">
-        {messages.map((msg, index) => (
-          <ChatMessage 
-            key={index}
-            message={msg}
-            isCurrentUser={msg.username === username}
+      <div className="flex flex-1 overflow-hidden">
+        {showUserList && (
+          <div className="w-64 bg-base-100 p-4 border-r border-gray-700 overflow-y-auto animate__animated animate__fadeInLeft">
+            <h2 className="text-lg font-semibold mb-3">Members in #{room}</h2>
+            <ul className="space-y-2">
+              {users.length > 0 ? (
+                users.map((user) => (
+                  <li 
+                    key={user}
+                    className={`p-2 rounded-md ${user === username ? 'bg-primary/10 font-medium' : 'bg-base-200'}`}
+                  >
+                    <img src={`https://avatar.vercel.sh/${user}`} alt={`${user}'s avatar`} className="w-6 h-6 rounded-full inline-block mr-2" />
+                    {user === username ? `${user} (you)` : user}
+                  </li>
+                ))
+              ) : (
+                <li className="text-gray-500 italic">No other members</li>
+              )}
+            </ul>
+          </div>
+        )}
+        
+        <div className={`flex flex-col ${showUserList ? 'flex-1' : 'w-full'}`}>
+          <div className="flex-1 overflow-y-auto p-4">
+            {messages.map((msg, index) => (
+              <ChatMessage 
+                key={index}
+                message={msg}
+                isCurrentUser={msg.username === username}
+              />
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+          
+          <ChatInput
+            message={message}
+            setMessage={setMessage}
+            sendMessage={handleSendMessage}
+            isConnected={connected}
           />
-        ))}
-        <div ref={messagesEndRef} />
+        </div>
       </div>
-      
-      <ChatInput
-        message={message}
-        setMessage={setMessage}
-        sendMessage={handleSendMessage}
-        isConnected={connected}
-      />
     </div>
   );
 }
