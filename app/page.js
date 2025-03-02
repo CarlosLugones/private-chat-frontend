@@ -51,14 +51,23 @@ export default function Home() {
                 <label className="label">
                   <span className="label-text">Nickname</span>
                 </label>
-                <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Enter your name"
-                  className="block p-2 border border-gray-500 rounded w-full focus:outline-none"
-                  required
-                />
+                <div className="flex">
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Enter your name"
+                    className="block p-2 border border-gray-500 rounded-l w-full focus:outline-none"
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="p-2 border border-gray-500 rounded-r bg-gray-700 text-white hover:bg-gray-800 hover:cursor-pointer transition focus:outline-none"
+                    onClick={() => {setUsername(''); localStorage.removeItem('username');}}
+                  >
+                    Clean
+                  </button>
+                </div>
               </div>
               
               <div className="form-control mb-6">

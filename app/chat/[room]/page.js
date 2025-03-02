@@ -99,7 +99,6 @@ export default function ChatRoom() {
         roomId: room
       });
     }
-    localStorage.removeItem("username");
     localStorage.removeItem("roomname");
     router.push("/");
   };
@@ -210,7 +209,7 @@ export default function ChatRoom() {
         >
           <div className="p-4 flex flex-col h-full">
             <div className="flex justify-between items-center mb-3">
-              <h2 className="text-lg font-semibold">Members in #{room}</h2>
+              <h2 className="text-lg font-semibold">Chat members</h2>
               <button 
                 onClick={toggleUserList}
                 className="btn btn-sm btn-circle btn-ghost"
