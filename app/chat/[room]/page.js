@@ -315,6 +315,7 @@ export default function ChatRoom() {
               setMessage={setMessage}
               sendMessage={handleSendMessage}
               isConnected={connected}
+              users={users}
             />
           </div>
         </>
