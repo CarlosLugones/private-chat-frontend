@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
+import { handleEmojiShortcodes } from "../../utils/emojiUtils";
+import EmojiPicker from "./EmojiPicker";
 
 /**
  * ChatInput - Component for the chat message input form
@@ -16,11 +18,39 @@ const ChatInput = ({ message, setMessage, sendMessage, isConnected, users = [] }
   const [mentionPosition, setMentionPosition] = useState(null);
   const inputRef = useRef(null);
   const mentionMenuRef = useRef(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   // Filter users based on the mention query
   const filteredUsers = users.filter(user => 
     user.toLowerCase().includes(mentionQuery.toLowerCase())
   );
+
+  // Handle message input changes with emoji conversion
+  const handleMessageChange = (e) => {
+    const newMessage = handleEmojiShortcodes(e.target.value);
+    setMessage(newMessage);
+  };
+
+  // Handle emoji selection from picker
+  const handleEmojiSelect = (emoji) => {
+    // Insert emoji at cursor position or at the end
+    const cursorPosition = inputRef.current?.selectionStart || message.length;
+    const updatedMessage = 
+      message.substring(0, cursorPosition) + 
+      emoji + 
+      message.substring(cursorPosition);
+    
+    setMessage(updatedMessage);
+    
+    // Focus back on input after adding emoji
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+        inputRef.current.selectionStart = cursorPosition + emoji.length;
+        inputRef.current.selectionEnd = cursorPosition + emoji.length;
+      }
+    }, 10);
+  };
 
   // Check for mentions when message changes
   useEffect(() => {
@@ -88,15 +118,32 @@ const ChatInput = ({ message, setMessage, sendMessage, isConnected, users = [] }
 
   return (
     <div className="p-4 bg-base-100 border-t border-gray-700 relative">
+      {showEmojiPicker && (
+        <div className="absolute bottom-full right-0 mb-2 z-20">
+          <EmojiPicker 
+            onSelect={handleEmojiSelect} 
+            onClose={() => setShowEmojiPicker(false)}
+          />
+        </div>
+      )}
+      
       <form onSubmit={sendMessage} className="flex">
+        <button
+          type="button"
+          onClick={() => setShowEmojiPicker(prev => !prev)}
+          className="p-2 mr-1 border border-gray-500 rounded-l bg-base-200 text-base-content hover:bg-base-300 transition-colors"
+        >
+          😊
+        </button>
+        
         <div className="relative flex-1">
           <input
             ref={inputRef}
             type="text"
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={handleMessageChange}
             placeholder={isConnected ? "Type a message..." : "Connecting..."}
-            className="w-full p-2 border border-gray-500 rounded-l focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full p-2 border border-gray-500 rounded-none focus:outline-none focus:ring-2 focus:ring-primary"
             disabled={!isConnected}
           />
           
