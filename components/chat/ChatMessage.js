@@ -15,8 +15,8 @@ const ChatMessage = ({ message, isCurrentUser }) => {
   
   // Determine bubble style based on message type
   const bubbleClass = system 
-    ? 'chat-bubble-system bg-gray-600' 
-    : (isCurrentUser ? 'chat-bubble-primary' : 'chat-bubble-info');
+    ? 'chat-bubble-system bg-gray-700' 
+    : 'chat-bubble-neutral bg-gray-700';
 
   return (
     <div className={`chat ${chatPositionClass} animate__animated animate__fadeIn`}>
