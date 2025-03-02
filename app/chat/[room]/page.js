@@ -29,6 +29,7 @@ export default function ChatRoom() {
   const [ready, setReady] = useState(false);
   const [users, setUsers] = useState([]);
   const [showUserList, setShowUserList] = useState(false);
+  const [copied, setCopied] = useState(false);
   const messagesEndRef = useRef(null);
   const router = useRouter();
   
@@ -133,6 +134,18 @@ export default function ChatRoom() {
     setShowUserList(prev => !prev);
   };
 
+  // Copy room ID to clipboard
+  const copyRoomId = () => {
+    navigator.clipboard.writeText(room)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
+      })
+      .catch(err => {
+        console.error('Failed to copy room ID:', err);
+      });
+  };
+
   // Helper function to determine if messages should be connected
   const shouldConnectMessages = (currentMsg, prevMsg) => {
     // Must be from the same user and not system messages
@@ -170,7 +183,22 @@ export default function ChatRoom() {
       <div className="bg-base-100 p-4 border-b border-gray-700 z-10">
         {/* Chat room header */}
         <div className="flex justify-between items-center">
-          <h1 className="text-xl font-bold">#{room}</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl font-bold">#{room}</h1>
+            <button
+              onClick={copyRoomId}
+              className="btn btn-xs btn-ghost"
+              aria-label="Copy room ID"
+            >
+              {copied ? (
+                <span className="text-success text-xs">Copied!</span>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              )}
+            </button>
+          </div>
           <div className="flex items-center gap-2">
             <div className="tooltip tooltip-bottom mr-2" data-tip={connected ? "Connected" : "Connecting..."}>
               {connected ? (
