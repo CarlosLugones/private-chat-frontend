@@ -139,12 +139,19 @@ export default function ChatRoom() {
       <div className="bg-base-100 p-4 border-b border-gray-700">
         <div className="flex justify-between items-center">
           <h1 className="text-xl font-bold">#{room}</h1>
-          <div>
-            <span className={`${connected ? "text-success" : "text-error"}`}>
-              {connected ? "Connected" : "Disconnected"}
-            </span>
-          </div>
           <div className="flex items-center gap-2">
+            <div className="tooltip tooltip-bottom mr-2" data-tip={connected ? "Connected" : "Connecting..."}>
+              {connected ? (
+                <span className="relative flex size-3">
+                  <span className="relative inline-flex size-3 rounded-full bg-green-500"></span>
+                  </span>
+              ) : (
+                <span className="flex items-center gap-2 animate__animated animate__pulse">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
+                  <span className="relative inline-flex size-3 rounded-full bg-red-500"></span>
+                </span>
+              )}
+            </div>
             <button 
               onClick={toggleUserList}
               className="btn btn-sm btn-outline"
