@@ -19,6 +19,7 @@ const ChatInput = ({ message, setMessage, sendMessage, isConnected, users = [] }
   const inputRef = useRef(null);
   const mentionMenuRef = useRef(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [textareaHeight, setTextareaHeight] = useState(40); // Default height
 
   // Filter users based on the mention query
   const filteredUsers = users.filter(user => 
@@ -29,7 +30,65 @@ const ChatInput = ({ message, setMessage, sendMessage, isConnected, users = [] }
   const handleMessageChange = (e) => {
     const newMessage = handleEmojiShortcodes(e.target.value);
     setMessage(newMessage);
+    
+    // Auto-adjust textarea height based on content
+    adjustTextareaHeight();
   };
+  
+  // Handle key press events for multi-line support
+  const handleKeyPress = (e) => {
+    // If Enter is pressed without Shift, submit the form
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault(); // Prevent default to avoid new line
+      if (message.trim()) {
+        // Call sendMessage with the event
+        // The message is already in the state, so no need to pass it
+        sendMessage(e);
+      }
+    }
+    // If Enter is pressed with Shift, allow new line (default behavior)
+  };
+  
+  // Auto-adjust textarea height based on content
+  const adjustTextareaHeight = () => {
+    if (inputRef.current) {
+      // Reset height temporarily to get proper scrollHeight calculation
+      inputRef.current.style.height = '40px'; // Start with default height
+      
+      // Get scrollHeight and set max height to prevent extremely tall textareas
+      const scrollHeight = inputRef.current.scrollHeight;
+      const maxHeight = 150;
+      
+      // Only expand if content actually needs more space
+      const newHeight = scrollHeight > 40 ? Math.min(scrollHeight, maxHeight) : 40;
+      
+      // Update state and set height
+      setTextareaHeight(newHeight);
+      inputRef.current.style.height = `${newHeight}px`;
+      
+      // If content exceeds max height, enable scrolling
+      if (scrollHeight > maxHeight) {
+        inputRef.current.style.overflowY = 'auto';
+      } else {
+        inputRef.current.style.overflowY = 'hidden';
+      }
+    }
+  };
+
+  // Force an immediate adjustment after render and when message changes
+  useEffect(() => {
+    if (message) {
+      // Only adjust when there's actual content
+      setTimeout(adjustTextareaHeight, 0);
+    } else {
+      // Reset to default height when empty
+      setTextareaHeight(40);
+      if (inputRef.current) {
+        inputRef.current.style.height = '40px';
+        inputRef.current.style.overflowY = 'hidden';
+      }
+    }
+  }, [message]);
 
   // Handle emoji selection from picker
   const handleEmojiSelect = (emoji) => {
@@ -127,24 +186,30 @@ const ChatInput = ({ message, setMessage, sendMessage, isConnected, users = [] }
         </div>
       )}
       
-      <form onSubmit={sendMessage} className="flex">
+      <form onSubmit={e => { e.preventDefault(); sendMessage(e); }} className="flex items-stretch">
         <button
           type="button"
           onClick={() => setShowEmojiPicker(prev => !prev)}
-          className="p-2 mr-1 border border-gray-500 rounded-l bg-base-200 text-base-content hover:bg-base-300 transition-colors"
+          className="px-3 mr-1 border border-gray-500 rounded-l bg-base-200 text-base-content hover:bg-base-300 transition-colors flex items-center justify-center min-w-[40px]"
+          style={{ height: `${textareaHeight}px` }}
         >
           😊
         </button>
         
         <div className="relative flex-1">
-          <input
+          <textarea
             ref={inputRef}
-            type="text"
             value={message}
             onChange={handleMessageChange}
+            onKeyDown={handleKeyPress}
             placeholder={isConnected ? "Type a message..." : "Connecting..."}
-            className="w-full p-2 border border-gray-500 rounded-none focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full px-3 py-2 border border-gray-500 rounded-none focus:outline-none focus:ring-2 focus:ring-primary resize-none"
             disabled={!isConnected}
+            style={{ 
+              height: `${textareaHeight}px`,
+              minHeight: '40px',
+              lineHeight: '1.5'
+            }}
           />
           
           {/* Mention autocomplete menu */}
@@ -174,8 +239,9 @@ const ChatInput = ({ message, setMessage, sendMessage, isConnected, users = [] }
         </div>
         <button
           type="submit"
-          className="p-2 border border-gray-500 rounded-r bg-primary text-white hover:bg-primary-focus disabled:bg-gray-500"
-          disabled={!isConnected}
+          className="px-3 border border-gray-500 rounded-r bg-primary text-white hover:bg-primary-focus disabled:bg-gray-500 flex items-center justify-center min-w-[50px]"
+          disabled={!isConnected || !message.trim()}
+          style={{ height: `${textareaHeight}px` }}
         >
           Send
         </button>
