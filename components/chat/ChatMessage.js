@@ -1,4 +1,5 @@
 import React from "react";
+import FormattedMessage from "./FormattedMessage";
 
 /**
  * ChatMessage - Component for rendering a single chat message
@@ -66,7 +67,7 @@ const ChatMessage = ({ message, isCurrentUser, isConnectedToPrevious, isLastFrom
       </div>
       
       <div className={`chat-bubble ${bubbleClass} ${carotClass}`}>
-        {content}
+        <FormattedMessage text={content} />
       </div>
       
       {!system && <div className="chat-footer opacity-50"></div>}
