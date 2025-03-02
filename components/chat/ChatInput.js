@@ -12,17 +12,38 @@ import ImagePreviewModal from "./ImagePreviewModal";
  * @param {Function} props.sendMessage - Function to handle form submission
  * @param {boolean} props.isConnected - Whether the WebSocket is connected
  * @param {Array} props.users - List of users for mention autocomplete
+ * @param {File|string|null} props.pastedImage - Image that was pasted/dropped
+ * @param {Function} props.setPastedImage - Function to set the pasted image
  */
-const ChatInput = ({ message, setMessage, sendMessage, isConnected, users = [] }) => {
+const ChatInput = ({ 
+  message, 
+  setMessage, 
+  sendMessage, 
+  isConnected, 
+  users = [],
+  pastedImage = null,
+  setPastedImage = null
+}) => {
   const [showMentionMenu, setShowMentionMenu] = useState(false);
   const [mentionQuery, setMentionQuery] = useState("");
   const [mentionPosition, setMentionPosition] = useState(null);
   const inputRef = useRef(null);
-  const fileInputRef = useRef(null); // Ref for file input
+  const fileInputRef = useRef(null);
   const mentionMenuRef = useRef(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [textareaHeight, setTextareaHeight] = useState(40); // Default height
-  const [pastedImage, setPastedImage] = useState(null);
+  const [textareaHeight, setTextareaHeight] = useState(40);
+  const [localPastedImage, setLocalPastedImage] = useState(null);
+  
+  // Use either the prop value or local state
+  const imageToShow = pastedImage || localPastedImage;
+  
+  const setImageToShow = (image) => {
+    if (setPastedImage) {
+      setPastedImage(image);
+    } else {
+      setLocalPastedImage(image);
+    }
+  };
 
   // Filter users based on the mention query
   const filteredUsers = users.filter(user => 
@@ -63,14 +84,7 @@ const ChatInput = ({ message, setMessage, sendMessage, isConnected, users = [] }
         e.preventDefault(); // Prevent default paste behavior
         
         const blob = items[i].getAsFile();
-        const reader = new FileReader();
-        
-        reader.onload = (event) => {
-          // Set the pasted image data (base64)
-          setPastedImage(event.target.result);
-        };
-        
-        reader.readAsDataURL(blob);
+        processImageFile(blob);
         return;
       }
     }
@@ -79,19 +93,27 @@ const ChatInput = ({ message, setMessage, sendMessage, isConnected, users = [] }
   // Handle file selection from file input
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      
-      reader.onload = (event) => {
-        // Set the file data (base64) to the same state used by paste
-        setPastedImage(event.target.result);
-      };
-      
-      reader.readAsDataURL(file);
+    if (file) {
+      processImageFile(file);
     }
     
     // Clear the input so the same file can be selected again
     e.target.value = '';
+  };
+
+  // Process image file from any source (paste, file input, or drop)
+  const processImageFile = (file) => {
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      
+      reader.onload = (event) => {
+        setImageToShow(event.target.result);
+      };
+      
+      reader.readAsDataURL(file);
+      return true;
+    }
+    return false;
   };
 
   // Helper function to trigger file input click
@@ -108,13 +130,13 @@ const ChatInput = ({ message, setMessage, sendMessage, isConnected, users = [] }
         imageData: imageData,
         caption: caption
       });
-      setPastedImage(null);
+      setImageToShow(null);
     }
   };
 
   // Cancel image sending
   const handleCancelImage = () => {
-    setPastedImage(null);
+    setImageToShow(null);
   };
 
   // Auto-adjust textarea height based on content
@@ -247,7 +269,7 @@ const ChatInput = ({ message, setMessage, sendMessage, isConnected, users = [] }
     <div className="p-4 bg-base-100 border-t border-gray-700 relative">
       {/* Image Preview Modal */}
       <ImagePreviewModal 
-        imageData={pastedImage}
+        imageData={imageToShow}
         onSend={handleSendImage}
         onCancel={handleCancelImage}
       />
@@ -270,7 +292,10 @@ const ChatInput = ({ message, setMessage, sendMessage, isConnected, users = [] }
         className="hidden"
       />
       
-      <form onSubmit={e => { e.preventDefault(); sendMessage(e); }} className="flex items-stretch">
+      <form 
+        onSubmit={e => { e.preventDefault(); sendMessage(e); }} 
+        className="flex items-stretch"
+      >
         <button
           type="button"
           onClick={() => setShowEmojiPicker(prev => !prev)}

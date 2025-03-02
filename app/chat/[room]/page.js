@@ -32,7 +32,10 @@ export default function ChatRoom() {
   const [showUserList, setShowUserList] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showUsernameModal, setShowUsernameModal] = useState(false);
+  const [pastedImage, setPastedImage] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
   const messagesEndRef = useRef(null);
+  const messagesAreaRef = useRef(null);
   const router = useRouter();
   
   // Load username from localStorage once on mount
@@ -109,6 +112,55 @@ export default function ChatRoom() {
       });
     }
   }, [connected, username, room, sendWebSocketMessage]);
+
+  // Process image file from any source (paste, file input, or drop)
+  const processImageFile = (file) => {
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      
+      reader.onload = (event) => {
+        setPastedImage(event.target.result);
+      };
+      
+      reader.readAsDataURL(file);
+      return true;
+    }
+    return false;
+  };
+
+  // Handle drag events for file dropping
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Check if leaving the message area itself (not its children)
+    if (e.currentTarget === e.target) {
+      setIsDragging(false);
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      // Process the first file only
+      processImageFile(files[0]);
+    }
+  };
 
   const leave = () => {
     if (connected) {
@@ -314,7 +366,14 @@ export default function ChatRoom() {
           
           {/* Main chat area - always full width */}
           <div className="flex flex-col flex-1 overflow-hidden w-full">
-            <div className="flex-1 overflow-y-auto p-4">
+            <div 
+              className={`flex-1 overflow-y-auto p-4 relative ${isDragging ? 'bg-base-300' : ''}`}
+              ref={messagesAreaRef}
+              onDragEnter={handleDragEnter}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
               {messages.map((msg, index) => (
                 <ChatMessage 
                   key={index}
@@ -325,6 +384,19 @@ export default function ChatRoom() {
                 />
               ))}
               <div ref={messagesEndRef} />
+              
+              {/* Drag overlay for visual feedback */}
+              {isDragging && (
+                <div className="absolute inset-0 flex items-center justify-center bg-base-200 bg-opacity-70 pointer-events-none z-10">
+                  <div className="bg-base-100 p-6 rounded-lg shadow-lg text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" className="mx-auto mb-4" viewBox="0 0 16 16">
+                      <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                      <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/>
+                    </svg>
+                    <span className="text-xl font-medium">Drop image to share</span>
+                  </div>
+                </div>
+              )}
             </div>
             
             <ChatInput
@@ -333,6 +405,8 @@ export default function ChatRoom() {
               sendMessage={handleSendMessage}
               isConnected={connected}
               users={users}
+              pastedImage={pastedImage}
+              setPastedImage={setPastedImage}
             />
           </div>
         </>
