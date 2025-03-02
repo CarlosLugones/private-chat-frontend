@@ -135,8 +135,9 @@ export default function ChatRoom() {
   };
   
   return (
-    <div className="flex flex-col h-screen max-h-screen bg-base-200">
-      <div className="bg-base-100 p-4 border-b border-gray-700">
+    <div className="flex flex-col h-screen max-h-screen bg-base-200 relative">
+      <div className="bg-base-100 p-4 border-b border-gray-700 z-10">
+        {/* Chat room header */}
         <div className="flex justify-between items-center">
           <h1 className="text-xl font-bold">#{room}</h1>
           <div className="flex items-center gap-2">
@@ -157,7 +158,7 @@ export default function ChatRoom() {
               className="btn btn-sm btn-outline"
               aria-label="Toggle user list"
             >
-              Users ({users.length})
+              Members ({users.length})
             </button>
             <button 
               onClick={leave}
@@ -170,47 +171,62 @@ export default function ChatRoom() {
         </div>
       </div>
       
-      <div className="flex flex-1 overflow-hidden">
-        {showUserList && (
-          <div className="w-64 bg-base-100 p-4 border-r border-gray-700 overflow-y-auto animate__animated animate__fadeInLeft">
-            <h2 className="text-lg font-semibold mb-3">Members in #{room}</h2>
-            <ul className="space-y-2">
-              {users.length > 0 ? (
-                users.map((user) => (
-                  <li 
-                    key={user}
-                    className={`p-2 rounded-md ${user === username ? 'bg-primary/10 font-medium' : 'bg-base-200'}`}
-                  >
-                    <img src={`https://avatar.vercel.sh/${user}`} alt={`${user}'s avatar`} className="w-6 h-6 rounded-full inline-block mr-2" />
-                    {user === username ? `${user} (you)` : user}
-                  </li>
-                ))
-              ) : (
-                <li className="text-gray-500 italic">No other members</li>
-              )}
-            </ul>
+      {/* User list side panel overlay */}
+      {showUserList && (
+        <div 
+          className="fixed top-0 left-0 h-full w-72 bg-base-100 shadow-lg z-20 animate__animated animate__fadeInLeft"
+        >
+          <div className="p-4 flex flex-col h-full">
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="text-lg font-semibold">Members in #{room}</h2>
+              <button 
+                onClick={toggleUserList}
+                className="btn btn-sm btn-circle btn-ghost"
+                aria-label="Close user list"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              <ul className="space-y-2">
+                {users.length > 0 ? (
+                  users.map((user) => (
+                    <li 
+                      key={user}
+                      className={`p-2 rounded-md ${user === username ? 'bg-primary/10 font-medium' : 'bg-base-200'}`}
+                    >
+                      <img src={`https://avatar.vercel.sh/${user}`} alt={`${user}'s avatar`} className="w-6 h-6 rounded-full inline-block mr-2" />
+                      {user === username ? `${user} (you)` : user}
+                    </li>
+                  ))
+                ) : (
+                  <li className="text-gray-500 italic">No other members</li>
+                )}
+              </ul>
+            </div>
           </div>
-        )}
-        
-        <div className={`flex flex-col ${showUserList ? 'flex-1' : 'w-full'}`}>
-          <div className="flex-1 overflow-y-auto p-4">
-            {messages.map((msg, index) => (
-              <ChatMessage 
-                key={index}
-                message={msg}
-                isCurrentUser={msg.username === username}
-              />
-            ))}
-            <div ref={messagesEndRef} />
-          </div>
-          
-          <ChatInput
-            message={message}
-            setMessage={setMessage}
-            sendMessage={handleSendMessage}
-            isConnected={connected}
-          />
         </div>
+      )}
+      
+      {/* Main chat area - always full width */}
+      <div className="flex flex-col flex-1 overflow-hidden w-full">
+        <div className="flex-1 overflow-y-auto p-4">
+          {messages.map((msg, index) => (
+            <ChatMessage 
+              key={index}
+              message={msg}
+              isCurrentUser={msg.username === username}
+            />
+          ))}
+          <div ref={messagesEndRef} />
+        </div>
+        
+        <ChatInput
+          message={message}
+          setMessage={setMessage}
+          sendMessage={handleSendMessage}
+          isConnected={connected}
+        />
       </div>
     </div>
   );
