@@ -15,12 +15,37 @@ export default function Home() {
     e.preventDefault();
     setError("");
     
-    if (username.trim() && roomname.trim()) {
-      // Store data in localStorage for use in chat page
-      localStorage.setItem("username", username.trim());
-      localStorage.setItem("roomname", roomname.trim());
-      router.push(`/chat/${roomname.trim()}`);
+    // Username validation
+    if (!username) {
+      setError("Username cannot be empty");
+      return;
     }
+    
+    if (username.length < 3) {
+      setError("Username must be at least 3 characters");
+      return;
+    }
+    
+    if (username.length > 15) {
+      setError("Username must be 15 characters or less");
+      return;
+    }
+    
+    if (!/^[a-zA-Z0-9]+$/.test(username)) {
+      setError("Username can only contain letters and numbers (no spaces or special characters)");
+      return;
+    }
+    
+    // Room name validation
+    if (!roomname.trim()) {
+      setError("Room name cannot be empty");
+      return;
+    }
+    
+    // Store data in localStorage for use in chat page
+    localStorage.setItem("username", username);
+    localStorage.setItem("roomname", roomname.trim());
+    router.push(`/chat/${roomname.trim()}`);
   };
 
   // Load values from localStorage on component mount
@@ -101,7 +126,7 @@ export default function Home() {
               </button>
 
               {error && (
-                <div className="mt-4 text-red-500 text-center">
+                <div className="mt-4 text-red-500 text-center animate__animated animate__fadeIn">
                   {error}
                 </div>
               )}

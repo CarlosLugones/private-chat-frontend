@@ -7,7 +7,7 @@ export default function UsernameModal({ isOpen, onSubmit }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    if (!username.trim()) {
+    if (!username) {
       setError('Username cannot be empty');
       return;
     }
@@ -17,8 +17,13 @@ export default function UsernameModal({ isOpen, onSubmit }) {
       return;
     }
     
-    if (username.length > 20) {
-      setError('Username must be less than 20 characters');
+    if (username.length > 15) {
+      setError('Username must be 15 characters or less');
+      return;
+    }
+    
+    if (!/^[a-zA-Z0-9]+$/.test(username)) {
+      setError('Username can only contain letters and numbers (no spaces or special characters)');
       return;
     }
     
@@ -47,7 +52,7 @@ export default function UsernameModal({ isOpen, onSubmit }) {
               autoFocus
             />
             {error && (
-              <p className="text-error text-sm mt-2">{error}</p>
+              <p className="text-error text-sm mt-2 animate__animated animate__pulse">{error}</p>
             )}
           </div>
           

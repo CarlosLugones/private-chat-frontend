@@ -23,6 +23,10 @@ body {
   animation-duration: 0.2s !important;
 }
 
+.animate__fadeIn {
+  animation-duration: 0.2s !important;
+}
+
 .no-carot::before {
   display: none !important;
   content: '' !important;
