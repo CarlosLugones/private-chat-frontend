@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { handleEmojiShortcodes } from "../../utils/emojiUtils";
 import EmojiPicker from "./EmojiPicker";
 import ImagePreviewModal from "./ImagePreviewModal";
+import CameraModal from "./CameraModal"; // Import the new component
 
 /**
  * ChatInput - Component for the chat message input form
@@ -33,6 +34,7 @@ const ChatInput = ({
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [textareaHeight, setTextareaHeight] = useState(40);
   const [localPastedImage, setLocalPastedImage] = useState(null);
+  const [showCameraModal, setShowCameraModal] = useState(false);
   
   // Use either the prop value or local state
   const imageToShow = pastedImage || localPastedImage;
@@ -44,6 +46,24 @@ const ChatInput = ({
       setLocalPastedImage(image);
     }
   };
+
+  // Handle camera photo capture
+  const handleCameraCapture = (imageData) => {
+    setImageToShow(imageData);
+    setShowCameraModal(false);
+  };
+
+  // Check if the device has a camera
+  const [hasCameraSupport, setHasCameraSupport] = useState(true);
+  
+  useEffect(() => {
+    // Check for camera support on component mount
+    if (typeof navigator !== 'undefined' && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      setHasCameraSupport(true);
+    } else {
+      setHasCameraSupport(false);
+    }
+  }, []);
 
   // Filter users based on the mention query
   const filteredUsers = users.filter(user => 
@@ -119,6 +139,11 @@ const ChatInput = ({
   // Helper function to trigger file input click
   const triggerFileUpload = () => {
     fileInputRef.current?.click();
+  };
+
+  // Open camera modal
+  const openCameraModal = () => {
+    setShowCameraModal(true);
   };
 
   // Send image with optional caption
@@ -274,6 +299,13 @@ const ChatInput = ({
         onCancel={handleCancelImage}
       />
       
+      {/* Camera Modal */}
+      <CameraModal
+        isOpen={showCameraModal}
+        onClose={() => setShowCameraModal(false)}
+        onCapture={handleCameraCapture}
+      />
+      
       {showEmojiPicker && (
         <div className="absolute bottom-full right-0 mb-2 z-20">
           <EmojiPicker 
@@ -317,6 +349,22 @@ const ChatInput = ({
             <path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/>
           </svg>
         </button>
+        
+        {/* Add camera button */}
+        {hasCameraSupport && (
+          <button
+            type="button"
+            onClick={openCameraModal}
+            className="px-3 mr-1 border border-gray-500 bg-base-200 text-base-content hover:bg-base-300 transition-colors flex items-center justify-center min-w-[40px]"
+            style={{ height: `${textareaHeight}px` }}
+            title="Take photo"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
+              <path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4H2zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0z"/>
+            </svg>
+          </button>
+        )}
         
         <div className="relative flex-1">
           <textarea
