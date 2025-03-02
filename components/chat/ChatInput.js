@@ -18,6 +18,7 @@ const ChatInput = ({ message, setMessage, sendMessage, isConnected, users = [] }
   const [mentionQuery, setMentionQuery] = useState("");
   const [mentionPosition, setMentionPosition] = useState(null);
   const inputRef = useRef(null);
+  const fileInputRef = useRef(null); // Ref for file input
   const mentionMenuRef = useRef(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [textareaHeight, setTextareaHeight] = useState(40); // Default height
@@ -73,6 +74,29 @@ const ChatInput = ({ message, setMessage, sendMessage, isConnected, users = [] }
         return;
       }
     }
+  };
+
+  // Handle file selection from file input
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      
+      reader.onload = (event) => {
+        // Set the file data (base64) to the same state used by paste
+        setPastedImage(event.target.result);
+      };
+      
+      reader.readAsDataURL(file);
+    }
+    
+    // Clear the input so the same file can be selected again
+    e.target.value = '';
+  };
+
+  // Helper function to trigger file input click
+  const triggerFileUpload = () => {
+    fileInputRef.current?.click();
   };
 
   // Send image with optional caption
@@ -237,6 +261,15 @@ const ChatInput = ({ message, setMessage, sendMessage, isConnected, users = [] }
         </div>
       )}
       
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleFileSelect}
+        className="hidden"
+      />
+      
       <form onSubmit={e => { e.preventDefault(); sendMessage(e); }} className="flex items-stretch">
         <button
           type="button"
@@ -245,6 +278,19 @@ const ChatInput = ({ message, setMessage, sendMessage, isConnected, users = [] }
           style={{ height: `${textareaHeight}px` }}
         >
           😊
+        </button>
+        
+        <button
+          type="button"
+          onClick={triggerFileUpload}
+          className="px-3 mr-1 border border-gray-500 bg-base-200 text-base-content hover:bg-base-300 transition-colors flex items-center justify-center min-w-[40px]"
+          style={{ height: `${textareaHeight}px` }}
+          title="Upload image"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+            <path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/>
+          </svg>
         </button>
         
         <div className="relative flex-1">
