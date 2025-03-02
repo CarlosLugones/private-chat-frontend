@@ -133,6 +133,38 @@ export default function ChatRoom() {
   const toggleUserList = () => {
     setShowUserList(prev => !prev);
   };
+
+  // Helper function to determine if messages should be connected
+  const shouldConnectMessages = (currentMsg, prevMsg) => {
+    // Must be from the same user and not system messages
+    if (!prevMsg || currentMsg.system || prevMsg.system || currentMsg.username !== prevMsg.username) {
+      return false;
+    }
+    
+    // Check if messages were sent within the same minute
+    const currentTime = new Date(currentMsg.timestamp);
+    const prevTime = new Date(prevMsg.timestamp);
+    
+    return (
+      currentTime.getFullYear() === prevTime.getFullYear() &&
+      currentTime.getMonth() === prevTime.getMonth() &&
+      currentTime.getDate() === prevTime.getDate() &&
+      currentTime.getHours() === prevTime.getHours() &&
+      currentTime.getMinutes() === prevTime.getMinutes()
+    );
+  };
+
+  // Helper function to determine if a message is the latest from this user in a sequence
+  const isLastMessageFromUser = (currentMsg, nextMsg) => {
+    // If there's no next message, this is the latest message
+    if (!nextMsg) return true;
+    
+    // If current or next is a system message, not comparable
+    if (currentMsg.system || nextMsg.system) return true;
+    
+    // If the next message is from a different user, this is the latest from the current user
+    return currentMsg.username !== nextMsg.username;
+  };
   
   return (
     <div className="flex flex-col h-screen max-h-screen bg-base-200 relative">
@@ -216,6 +248,8 @@ export default function ChatRoom() {
               key={index}
               message={msg}
               isCurrentUser={msg.username === username}
+              isConnectedToPrevious={shouldConnectMessages(msg, messages[index - 1])}
+              isLastFromUser={isLastMessageFromUser(msg, messages[index + 1])}
             />
           ))}
           <div ref={messagesEndRef} />

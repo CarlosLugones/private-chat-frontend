@@ -22,3 +22,13 @@ body {
 .animate__fadeInLeft {
   animation-duration: 0.2s !important;
 }
+
+.no-carot::before {
+  display: none !important;
+  content: '' !important;
+  opacity: 0 !important;
+  background-color: transparent !important;
+  width: 0 !important;
+  height: 0 !important;
+  mask-image: none !important;
+}
