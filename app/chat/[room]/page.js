@@ -449,7 +449,7 @@ export default function ChatRoom() {
               
               {/* Drag overlay for visual feedback */}
               {isDragging && (
-                <div className="absolute inset-0 flex items-center justify-center bg-base-200 bg-opacity-70 pointer-events-none z-10">
+                <div className="fixed inset-0 flex items-center justify-center bg-base-200 bg-opacity-70 pointer-events-none z-50">
                   <div className="bg-base-100 p-6 rounded-lg shadow-lg text-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" className="mx-auto mb-4" viewBox="0 0 16 16">
                       <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
