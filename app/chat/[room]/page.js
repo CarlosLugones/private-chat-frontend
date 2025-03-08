@@ -264,7 +264,7 @@ export default function ChatRoom() {
   };
 
   // Handle image from any source - paste, file input, or drop
-  const handleImageData = (imageData) => {
+  const handleImageData = (imageData, caption) => {
     if (!imageData) return;
     
     // If we have a dropped image, reset it after processing
@@ -276,7 +276,7 @@ export default function ChatRoom() {
     handleSendMessage(null, {
       type: "IMAGE_MESSAGE",
       imageData: imageData,
-      caption: ""
+      caption: caption,
     });
   };
   

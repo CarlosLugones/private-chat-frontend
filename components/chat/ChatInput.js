@@ -145,7 +145,7 @@ const ChatInput = ({
     if (isConnected) {
       if (onImageSend) {
         // Use the new prop if provided
-        onImageSend(imageData);
+        onImageSend(imageData, caption);
       } else {
         // Fallback to old method
         sendMessage(null, {
