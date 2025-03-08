@@ -1,10 +1,18 @@
+/**
+ * @module EmojiUtils
+ * @description Utilities for handling emoji shortcodes and replacement in text
+ */
+
 import data from '@emoji-mart/data'
 import { init } from 'emoji-mart'
 
 // Initialize emoji-mart with data
 init({ data })
 
-// Common emoji shortcuts for quick replacement
+/**
+ * Common emoji shortcuts for quick replacement
+ * Uncomment or add shortcuts as needed
+ */
 const emojiShortcuts = {
   // ':)': '😊',
   // ':(': '😔',
@@ -16,7 +24,10 @@ const emojiShortcuts = {
   // '(n)': '👎',
 };
 
-// Essential emojis that should always be available
+/**
+ * Essential emojis that should always be available
+ * These emojis are prioritized in search results and guaranteed to work
+ */
 const essentialEmojis = {
   ':heart:': '❤️',
   ':fire:': '🔥',
@@ -36,6 +47,16 @@ const essentialEmojis = {
   ':sunglasses:': '😎',
 };
 
+/**
+ * Configuration options for the emoji utility
+ */
+export const emojiConfig = {
+  maxSearchResults: 24,
+  enableShortcuts: true,
+  enableDebug: false,
+  customEmojis: {} // Add your custom emojis here
+};
+
 // Helper function to escape special regex characters
 function escapeRegExp(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -43,11 +64,20 @@ function escapeRegExp(string) {
 
 // Build complete emoji mapping from emoji-mart data
 let fullEmojiMap = null;
+let lastBuildTime = null;
 
+/**
+ * Builds a complete mapping of emoji shortcodes to their native representations
+ */
 const buildEmojiMap = () => {
+  // Use cached version if available
   if (fullEmojiMap) return fullEmojiMap;
   
-  fullEmojiMap = { ...essentialEmojis }; // Start with our essential emojis
+  const startTime = emojiConfig.enableDebug ? performance.now() : null;
+  fullEmojiMap = { 
+    ...essentialEmojis,
+    ...emojiConfig.customEmojis 
+  }; // Start with our essential emojis
   
   try {
     // Process all emojis from emoji-mart data
@@ -85,13 +115,27 @@ const buildEmojiMap = () => {
     }
   } catch (error) {
     console.error('Error processing emoji data:', error);
+    // Still return what we have even if there was an error
   }
   
-  // Merge with our shortcuts
-  return { ...fullEmojiMap, ...emojiShortcuts };
+  // Add performance logging if debug is enabled
+  if (emojiConfig.enableDebug) {
+    const endTime = performance.now();
+    console.log(`Emoji map built in ${(endTime - startTime).toFixed(2)}ms with ${Object.keys(fullEmojiMap).length} entries`);
+    lastBuildTime = new Date();
+  }
+  
+  // Merge with our shortcuts if enabled
+  return emojiConfig.enableShortcuts 
+    ? { ...fullEmojiMap, ...emojiShortcuts }
+    : fullEmojiMap;
 };
 
-// Debug function to check if emoji is available
+/**
+ * Debug function to check if an emoji is available
+ * @param {string} code - Emoji shortcode to check
+ * @returns {Object} Information about the emoji availability
+ */
 export const checkEmoji = (code) => {
   const map = buildEmojiMap();
   const shortcode = code.startsWith(':') ? code.toLowerCase() : `:${code.toLowerCase()}:`;
@@ -99,11 +143,16 @@ export const checkEmoji = (code) => {
     shortcode, 
     emoji: map[shortcode] || null,
     found: !!map[shortcode],
-    mapSize: Object.keys(map).length
+    mapSize: Object.keys(map).length,
+    lastBuildTime
   };
 };
 
-// Handle shortcode replacement in text input with special emphasis on common emojis
+/**
+ * Handle shortcode replacement in text input
+ * @param {string} text - Text that may contain emoji shortcodes
+ * @returns {string} Text with shortcodes replaced by emoji characters
+ */
 export const handleEmojiShortcodes = (text) => {
   if (!text) return '';
   
@@ -131,17 +180,35 @@ export const handleEmojiShortcodes = (text) => {
   return result;
 };
 
-// Parse text with emoji shortcodes for rendering
+/**
+ * Parse text with emoji shortcodes for rendering
+ * @param {string} text - Text that may contain emoji shortcodes
+ * @returns {string} Text with emojis rendered
+ */
 export const parseEmojis = (text) => {
   if (!text) return '';
   return handleEmojiShortcodes(text);
 };
 
-// For emoji suggestions - now returns complete results from the full emoji set
+// Cache for search results to improve performance
+const searchCache = new Map();
+
+/**
+ * Search for emojis by shortcode query
+ * @param {string} query - Search term for finding emojis
+ * @returns {Array<{shortcode: string, emoji: string}>} Array of matching emoji objects
+ */
 export const searchEmojis = (query) => {
   if (!query || query.length < 2) return [];
   
   const sanitizedQuery = query.toLowerCase();
+  
+  // Check cache first
+  const cacheKey = `query_${sanitizedQuery}`;
+  if (searchCache.has(cacheKey)) {
+    return searchCache.get(cacheKey);
+  }
+  
   const emojis = buildEmojiMap();
   
   // First prioritize essential emojis that match the query
@@ -158,8 +225,10 @@ export const searchEmojis = (query) => {
     )
     .map(([shortcode, emoji]) => ({ shortcode, emoji }));
   
-  // Combine and limit results
-  return [...essentialMatches, ...allMatches].slice(0, 24);
+  // Cache and return results (implementation remains the same)
+  const results = [...essentialMatches, ...allMatches].slice(0, emojiConfig.maxSearchResults);
+  searchCache.set(cacheKey, results);
+  return results;
 };
 
 // Export relevant functions
