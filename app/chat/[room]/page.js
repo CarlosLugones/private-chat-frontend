@@ -37,6 +37,8 @@ export default function ChatRoom() {
   const [droppedImage, setDroppedImage] = useState(null);
   const messagesEndRef = useRef(null);
   const messagesAreaRef = useRef(null);
+  // Add a ref to track recently left users with timestamps
+  const recentlyLeftRef = useRef({});
   const router = useRouter();
   
   // Load username from localStorage once on mount
@@ -83,9 +85,41 @@ export default function ChatRoom() {
     enabled: ready && !!username && !!room,
     onMessage: (data) => {
       console.log("Received message:", data);
+      
+      // Special handling for system messages about users joining/leaving
+      if (data.system === true) {
+        if (data.type === "JOIN_ROOM") {
+          const username = data.username;
+          const leftTimestamp = recentlyLeftRef.current[username];
+          
+          // Check if this user left within last 2 seconds (quick reconnection)
+          if (leftTimestamp && (Date.now() - leftTimestamp < 2000)) {
+            // This is a quick reconnection - remove the "left" message if it exists
+            setMessages(prev => prev.filter(msg => 
+              !(msg.system === true && 
+                msg.type === "LEAVE_ROOM" && 
+                msg.username === username)
+            ));
+            
+            // Clear the reconnection tracking
+            delete recentlyLeftRef.current[username];
+            
+            // Don't add the "joined" message
+            return;
+          }
+        }
+        else if (data.type === "LEAVE_ROOM") {
+          // Track when this user left
+          const username = data.username;
+          recentlyLeftRef.current[username] = Date.now();
+        }
+      }
+      
+      // Standard message rendering for messages we want to display
       if (RENDERABLE_TYPES.includes(data.type)) {
         setMessages(prev => [...prev, data]);
       }
+      
       switch (data.type) {
         case "USER_LIST":
           setUsers(data.users || []);
@@ -98,6 +132,7 @@ export default function ChatRoom() {
       console.log("WebSocket connection status changed:", status);
     },
     onError: (error) => {
+      // Handle errors
     }
   });
 
@@ -142,7 +177,7 @@ export default function ChatRoom() {
     // Keep the dragging state active
     setIsDragging(true);
   };
-
+  
   const handleDragLeave = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -363,7 +398,7 @@ export default function ChatRoom() {
                   {connected ? (
                     <span className="relative flex size-3">
                       <span className="relative inline-flex size-3 rounded-full bg-green-500"></span>
-                      </span>
+                    </span>
                   ) : (
                     <span className="flex items-center gap-2 animate__animated animate__pulse">
                       <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
