@@ -152,7 +152,10 @@ export default function Home() {
             Code
           </a>
           <a href="https://t.me/PrivateChatUpdates" target="_blank">
-            News
+            Telegram
+          </a>
+          <a href="https://primal.net/p/nprofile1qqswgw5f64w4pyjesy39rq69n6n8ey29dzh9rhprxlpwf3auhsu6qmg3zaq84" target="_blank">
+            Nostr
           </a>
           <a href="https://teletype.in/@privatechat" target="_blank">
             Blog
