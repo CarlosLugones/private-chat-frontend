@@ -332,7 +332,7 @@ const ChatInput = ({
       />
       
       <form onSubmit={e => { e.preventDefault(); sendMessage(e); }} className="flex items-stretch">
-        <div className="flex mr-1">
+        <div className="flex">
           {/* Emoji button */}
           <button
             type="button"
@@ -362,7 +362,7 @@ const ChatInput = ({
           <button
             type="button"
             onClick={handleOpenCamera}
-            className="px-3 border border-gray-500 rounded-r bg-base-200 text-base-content hover:bg-base-300 transition-colors flex items-center justify-center min-w-[40px]"
+            className="px-3 border border-gray-500 bg-base-200 text-base-content hover:bg-base-300 transition-colors flex items-center justify-center min-w-[40px]"
             style={{ height: `${textareaHeight}px` }}
             title="Take photo or video"
           >
@@ -381,7 +381,7 @@ const ChatInput = ({
             onKeyDown={handleKeyPress}
             onPaste={handlePaste}
             placeholder={isConnected ? "Type a message..." : "Connecting..."}
-            className="w-full px-3 py-2 border border-gray-500 rounded-none focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+            className="w-full px-3 py-2 border border-gray-500 rounded-none focus:outline-none resize-none"
             disabled={!isConnected}
             style={{ 
               height: `${textareaHeight}px`,
