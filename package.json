@@ -1,6 +1,6 @@
 {
   "name": "private-chat-frontend",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "description": "A secure, ephemeral chat application with no history or logs",
   "scripts": {
