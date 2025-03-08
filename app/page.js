@@ -15,12 +15,37 @@ export default function Home() {
     e.preventDefault();
     setError("");
     
-    if (username.trim() && roomname.trim()) {
-      // Store data in localStorage for use in chat page
-      localStorage.setItem("username", username.trim());
-      localStorage.setItem("roomname", roomname.trim());
-      router.push(`/chat/${roomname.trim()}`);
+    // Username validation
+    if (!username) {
+      setError("Username cannot be empty");
+      return;
     }
+    
+    if (username.length < 3) {
+      setError("Username must be at least 3 characters");
+      return;
+    }
+    
+    if (username.length > 15) {
+      setError("Username must be 15 characters or less");
+      return;
+    }
+    
+    if (!/^[a-zA-Z0-9]+$/.test(username)) {
+      setError("Username can only contain letters and numbers (no spaces or special characters)");
+      return;
+    }
+    
+    // Room name validation
+    if (!roomname.trim()) {
+      setError("Room name cannot be empty");
+      return;
+    }
+    
+    // Store data in localStorage for use in chat page
+    localStorage.setItem("username", username);
+    localStorage.setItem("roomname", roomname.trim());
+    router.push(`/chat/${roomname.trim()}`);
   };
 
   // Load values from localStorage on component mount
@@ -51,14 +76,23 @@ export default function Home() {
                 <label className="label">
                   <span className="label-text">Nickname</span>
                 </label>
-                <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Enter your name"
-                  className="block p-2 border border-gray-500 rounded w-full focus:outline-none"
-                  required
-                />
+                <div className="flex">
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Enter your name"
+                    className="block p-2 border border-gray-500 rounded-l w-full focus:outline-none"
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="p-2 border border-gray-500 rounded-r bg-gray-700 text-white hover:bg-gray-800 hover:cursor-pointer transition focus:outline-none"
+                    onClick={() => {setUsername(''); localStorage.removeItem('username');}}
+                  >
+                    Clean
+                  </button>
+                </div>
               </div>
               
               <div className="form-control mb-6">
@@ -92,7 +126,7 @@ export default function Home() {
               </button>
 
               {error && (
-                <div className="mt-4 text-red-500 text-center">
+                <div className="mt-4 text-red-500 text-center animate__animated animate__fadeIn">
                   {error}
                 </div>
               )}
@@ -117,10 +151,13 @@ export default function Home() {
           <a href="https://github.com/CarlosLugones/private-chat-frontend" target="_blank">
             Code
           </a>
-          <a href="https://github.com/CarlosLugones/private-chat-frontend" target="_blank">
-            News
+          <a href="https://t.me/PrivateChatUpdates" target="_blank">
+            Telegram
           </a>
-          <a href="https://blog.carloslugones.com/private-chat" target="_blank">
+          <a href="https://primal.net/p/nprofile1qqswgw5f64w4pyjesy39rq69n6n8ey29dzh9rhprxlpwf3auhsu6qmg3zaq84" target="_blank">
+            Nostr
+          </a>
+          <a href="https://teletype.in/@privatechat" target="_blank">
             Blog
           </a>
         </div>
