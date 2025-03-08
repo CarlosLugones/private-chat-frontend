@@ -203,6 +203,7 @@ export default function FormattedMessage({
           </a>
         );
         break;
+
       case 'room':
         result.push(
           <span 
@@ -215,16 +216,18 @@ export default function FormattedMessage({
           </span>
         );
         break;
+
       case 'username':
         result.push(
           <span 
             key={`match-${idx}`}
-            className="text-purple-300 font-medium px-1 py-0.5 bg-purple-700/20 rounded hover:bg-green-700/30 transition-colors duration-200 cursor-pointer"
+            className="text-blue-200 font-medium px-1 py-0.5 bg-blue-800 rounded hover:bg-blue-700 transition-colors duration-200 cursor-pointer"
           >
             {match.content}
           </span>
         );
         break;
+
       case 'inlinecode': {
         const code = inlineCodes[match.id];
         result.push(
@@ -248,6 +251,7 @@ export default function FormattedMessage({
         );
         break;
       }
+
       case 'codeblock': {
         const { code, language } = codeBlocks[match.id];
         
