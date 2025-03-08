@@ -60,7 +60,7 @@ export default function ImagePreviewModal({ imageData, onSend, onCancel }) {
           </button>
           <button 
             className="btn btn-primary" 
-            onClick={() => onSend(imageData, caption)}
+            onClick={() => { onSend(imageData, caption); setCaption(''); }}
           >
             Send Image
           </button>
