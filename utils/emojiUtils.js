@@ -6,15 +6,14 @@ init({ data })
 
 // Common emoji shortcuts for quick replacement
 const emojiShortcuts = {
-  ':)': '😊',
-  ':(': '😔',
-  ':/': '😕',
-  ':|': '😐',
-  ';)': '😉',
-  ':*': '😘',
-  '<3': '❤️',
-  '(y)': '👍',
-  '(n)': '👎',
+  // ':)': '😊',
+  // ':(': '😔',
+  // ':|': '😐',
+  // ';)': '😉',
+  // ':*': '😘',
+  // '<3': '❤️',
+  // '(y)': '👍',
+  // '(n)': '👎',
 };
 
 // Essential emojis that should always be available
