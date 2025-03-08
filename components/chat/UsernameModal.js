@@ -52,7 +52,7 @@ export default function UsernameModal({ isOpen, onSubmit }) {
               autoFocus
             />
             {error && (
-              <p className="text-error text-sm mt-2 animate__animated animate__pulse">{error}</p>
+              <p className="text-error text-sm mt-2 animate__animated animate__fadeIn">{error}</p>
             )}
           </div>
           
