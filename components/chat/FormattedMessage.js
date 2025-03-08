@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { detectLanguage, highlightCode, copyCodeToClipboard, getSafeLanguage } from '../../utils/codeHighlightUtils';
 import ImageMessage from './ImageMessage';
-import VideoMessage from './VideoMessage';
 
 /**
  * Formats message text to highlight:
@@ -12,31 +11,17 @@ import VideoMessage from './VideoMessage';
  * - Inline code (wrapped in single backticks)
  * - Code blocks (wrapped in triple backticks)
  * - Images (with special handling)
- * - Videos (with special handling)
  * - Preserves line breaks
  */
 export default function FormattedMessage({ 
   text, 
   isImageMessage, 
   imageData, 
-  imageCaption,
-  isVideoMessage,
-  videoData,
-  videoCaption
+  imageCaption
 }) {
   // Special handling for image messages
   if (isImageMessage && imageData) {
     return <ImageMessage imageData={imageData} caption={imageCaption} />;
-  }
-  
-  // Special handling for video messages
-  if (isVideoMessage) {
-    console.log('FormattedMessage rendering video message with:', videoData ? 
-      (typeof videoData === 'string' ? 'string data URL' : 
-       'object with props: ' + Object.keys(videoData).join(', ')) 
-    : 'missing');
-    
-    return <VideoMessage videoData={videoData} caption={videoCaption} />;
   }
   
   const [copiedIndex, setCopiedIndex] = useState(null);

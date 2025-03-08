@@ -121,8 +121,6 @@ const ChatInput = ({
   
   // Handle media captured from camera
   const handleCapturedMedia = (mediaData, type) => {
-    console.log(`Handling captured ${type}:`, mediaData ? 'data present' : 'no data');
-    
     if (type === 'image') {
       // For images, check if it's already a complete message object
       if (mediaData && mediaData.type === "IMAGE_MESSAGE") {
@@ -132,9 +130,6 @@ const ChatInput = ({
         // Set as pastedImage for preview modal if it's just the data URL
         setPastedImage(mediaData);
       }
-    } else if (type === 'video') {
-      // Always send videos directly
-      sendMessage(null, mediaData);
     }
     
     setShowCameraModal(false);
@@ -364,7 +359,7 @@ const ChatInput = ({
             onClick={handleOpenCamera}
             className="px-3 border border-gray-500 bg-base-200 text-base-content hover:bg-base-300 transition-colors flex items-center justify-center min-w-[40px]"
             style={{ height: `${textareaHeight}px` }}
-            title="Take photo or video"
+            title="Take photo"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
               <path d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1v6zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4H2z"/>

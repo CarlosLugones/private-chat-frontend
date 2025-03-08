@@ -8,7 +8,7 @@ import ChatMessage from "../../../components/chat/ChatMessage";
 import ChatInput from "../../../components/chat/ChatInput";
 import UsernameModal from "../../../components/chat/UsernameModal";
 
-const RENDERABLE_TYPES = ["JOIN_ROOM", "LEAVE_ROOM", "CHAT_MESSAGE", "IMAGE_MESSAGE", "VIDEO_MESSAGE", "ERROR"];
+const RENDERABLE_TYPES = ["JOIN_ROOM", "LEAVE_ROOM", "CHAT_MESSAGE", "IMAGE_MESSAGE", "ERROR"];
 
 /**
  * ChatRoom - A real-time chat room component using WebSockets
@@ -230,41 +230,13 @@ export default function ChatRoom() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
   
-  // Enhanced sendMessage function with support for image and video messages
+  // Enhanced sendMessage function with support for image messages
   const handleSendMessage = (e, customData = null) => {
     if (e) e.preventDefault();
     
-    // If custom data is provided (e.g., image or video message), send that instead
+    // If custom data is provided (e.g., image message), send that instead
     if (customData && connected) {
-      console.log('Sending custom message data:', customData.type, {
-        hasDataUrl: !!customData.dataUrl,
-        hasMetadata: !!customData.metadata
-      });
-      
-      // For VIDEO_MESSAGE, ensure it has the necessary properties for transport
-      if (customData.type === 'VIDEO_MESSAGE') {
-        // Preserve the dataUrl for transport and essential metadata
-        const transportableData = {
-          type: 'VIDEO_MESSAGE',
-          dataUrl: customData.dataUrl,         // This is what will be transported over WebSocket
-          metadata: customData.metadata || {}, // Include metadata for reconstruction
-          caption: customData.caption || '',
-          blobId: customData.blobId || null,   // Pass through blobId if it exists
-          blobUrl: null                        // We don't pass blobUrl through WebSockets
-        };
-        
-        // Add common message properties
-        const fullMessage = {
-          ...transportableData,
-          system: false,
-          roomId: room,
-          username: username,
-          timestamp: new Date().toISOString()
-        };
-        
-        sendWebSocketMessage(fullMessage);
-        return;
-      }
+      console.log('Sending custom message data:', customData.type);
       
       // For other types, preserve the original approach
       const fullMessage = {
