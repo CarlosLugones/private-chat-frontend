@@ -11,7 +11,7 @@ A secure, ephemeral chat application with no history, logs, tracking, or authent
 [![Next.js](https://img.shields.io/badge/Next.js-black?style=flat&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![Vercel](https://img.shields.io/badge/Vercel-deployed-000000?style=flat&logo=vercel&logoColor=white)](https://vercel.com)
 
-This frontend requires a running instance of the [backend server](https://github.com/CarlosLugones/private-chat-backend).
+This client app requires a running instance of the [server](https://github.com/CarlosLugones/private-chat-backend).
 
 You can host your own instance, or use the one hosted by [Diamonds VPN](https://vpn.diamonds) at [chat.vpn.diamonds](https://chat.vpn.diamonds).
 
@@ -36,18 +36,25 @@ You can host your own instance, or use the one hosted by [Diamonds VPN](https://
 
 ### Installation
 
-1. Clone the repository.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/CarlosLugones/private-chat-frontend.git
+   cd private-chat-frontend
+   ```
 
 2. Install dependencies:
-```bash
-bun install
-```
+   ```bash
+   bun install
+   ```
 
-3. Create a `.env.local` file in the root directory and add:
-```
-NEXT_PUBLIC_FRONTEND_URL=localhost:3000
-NEXT_PUBLIC_BACKEND_URL=localhost:8000
-```
+3. Create a `.env.local` file in the root directory:
+   ```
+   # Your frontend URL (development)
+   NEXT_PUBLIC_FRONTEND_URL=localhost:3000
+   
+   # Backend server URL
+   NEXT_PUBLIC_BACKEND_URL=localhost:8000
+   ```
 
 ### Development
 
@@ -57,28 +64,11 @@ Start the development server:
 bun run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to view the application.
-
-## Project Structure
-
-```
-/
-├── app/                    # Next.js app directory
-│   ├── page.js             # Home page
-│   └── chat/[room]/        # Dynamic chat room route
-│       └── page.js         # Chat room page
-├── components/             # React components
-│   └── chat/               # Chat-related components
-│       ├── ChatInput.js    # Message input component
-│       └── ChatMessage.js  # Individual message component
-├── hooks/                  # Custom React hooks
-│   └── useWebSocket.js     # WebSocket connection hook
-└── public/                 # Static assets
-```
+Open [http://localhost:3000](http://localhost:3000) in your browser to view the client application.
 
 ## WebSocket Protocol
 
-The application uses the following message formats:
+The server and client uses the following message formats for real-time communication:
 
 ### Joining a room:
 ```json
@@ -100,7 +90,7 @@ The application uses the following message formats:
 }
 ```
 
-### Sending a message:
+### Sending a chat text message:
 ```json
 {
   "system": false,
@@ -108,6 +98,41 @@ The application uses the following message formats:
   "roomId": "string",
   "content": "string",
   "username": "string"
+}
+```
+
+### Sending a chat image message:
+```json
+{
+  "system": false,
+  "type": "IMAGE_MESSAGE",
+  "roomId": "string",
+  "username": "string",
+  "imageData": "string",
+  "caption": "string",
+  "timestamp": "string"
+}
+```
+
+### Broadcasting chat members list:
+```json
+{
+  "system": true,
+  "type": "USER_LIST",
+  "roomId": "string",
+  "members": ["string"]
+}
+```
+
+### Error
+```json
+{
+  "system": true,
+  "type": "ERROR",
+  "roomId": "string",
+  "username": "string",
+  "content": "string",
+  "timestamp": "string"
 }
 ```
 
