@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { handleEmojiShortcodes } from "../../utils/emojiUtils";
 import EmojiPicker from "./EmojiPicker";
 import ImagePreviewModal from "./ImagePreviewModal";
-import CameraModal from "./CameraModal"; // Import the new component
+import CameraModal from "./CameraModal";
 
 /**
  * ChatInput - Component for the chat message input form
@@ -13,57 +13,26 @@ import CameraModal from "./CameraModal"; // Import the new component
  * @param {Function} props.sendMessage - Function to handle form submission
  * @param {boolean} props.isConnected - Whether the WebSocket is connected
  * @param {Array} props.users - List of users for mention autocomplete
- * @param {File|string|null} props.pastedImage - Image that was pasted/dropped
- * @param {Function} props.setPastedImage - Function to set the pasted image
  */
 const ChatInput = ({ 
   message, 
   setMessage, 
   sendMessage, 
   isConnected, 
-  users = [],
-  pastedImage = null,
-  setPastedImage = null
+  users = [], 
+  droppedImage, 
+  onImageSend 
 }) => {
   const [showMentionMenu, setShowMentionMenu] = useState(false);
   const [mentionQuery, setMentionQuery] = useState("");
   const [mentionPosition, setMentionPosition] = useState(null);
   const inputRef = useRef(null);
-  const fileInputRef = useRef(null);
   const mentionMenuRef = useRef(null);
+  const fileInputRef = useRef(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [textareaHeight, setTextareaHeight] = useState(40);
-  const [localPastedImage, setLocalPastedImage] = useState(null);
+  const [textareaHeight, setTextareaHeight] = useState(40); // Default height
+  const [pastedImage, setPastedImage] = useState(null);
   const [showCameraModal, setShowCameraModal] = useState(false);
-  
-  // Use either the prop value or local state
-  const imageToShow = pastedImage || localPastedImage;
-  
-  const setImageToShow = (image) => {
-    if (setPastedImage) {
-      setPastedImage(image);
-    } else {
-      setLocalPastedImage(image);
-    }
-  };
-
-  // Handle camera photo capture
-  const handleCameraCapture = (imageData) => {
-    setImageToShow(imageData);
-    setShowCameraModal(false);
-  };
-
-  // Check if the device has a camera
-  const [hasCameraSupport, setHasCameraSupport] = useState(true);
-  
-  useEffect(() => {
-    // Check for camera support on component mount
-    if (typeof navigator !== 'undefined' && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      setHasCameraSupport(true);
-    } else {
-      setHasCameraSupport(false);
-    }
-  }, []);
 
   // Filter users based on the mention query
   const filteredUsers = users.filter(user => 
@@ -104,64 +73,94 @@ const ChatInput = ({
         e.preventDefault(); // Prevent default paste behavior
         
         const blob = items[i].getAsFile();
-        processImageFile(blob);
+        const reader = new FileReader();
+        
+        reader.onload = (event) => {
+          // Set the pasted image data (base64)
+          setPastedImage(event.target.result);
+        };
+        
+        reader.readAsDataURL(blob);
         return;
       }
     }
   };
 
   // Handle file selection from file input
-  const handleFileSelect = (e) => {
+  const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      processImageFile(file);
-    }
-    
-    // Clear the input so the same file can be selected again
-    e.target.value = '';
-  };
-
-  // Process image file from any source (paste, file input, or drop)
-  const processImageFile = (file) => {
-    if (file && file.type.startsWith('image/')) {
       const reader = new FileReader();
       
       reader.onload = (event) => {
-        setImageToShow(event.target.result);
+        // Check if it's an image
+        if (file.type.startsWith('image/')) {
+          setPastedImage(event.target.result);
+        } else {
+          console.log('Unsupported file type:', file.type);
+          // Could add a toast notification here
+        }
       };
       
       reader.readAsDataURL(file);
-      return true;
     }
-    return false;
+    
+    // Clear the input value so the same file can be selected again
+    e.target.value = '';
   };
 
-  // Helper function to trigger file input click
-  const triggerFileUpload = () => {
+  // Launch file selector
+  const handleAttachFile = () => {
     fileInputRef.current?.click();
   };
-
+  
   // Open camera modal
-  const openCameraModal = () => {
+  const handleOpenCamera = () => {
     setShowCameraModal(true);
+  };
+  
+  // Handle media captured from camera
+  const handleCapturedMedia = (mediaData, type) => {
+    console.log(`Handling captured ${type}:`, mediaData ? 'data present' : 'no data');
+    
+    if (type === 'image') {
+      // For images, check if it's already a complete message object
+      if (mediaData && mediaData.type === "IMAGE_MESSAGE") {
+        // Send it directly if it's already a complete message object
+        sendMessage(null, mediaData);
+      } else {
+        // Set as pastedImage for preview modal if it's just the data URL
+        setPastedImage(mediaData);
+      }
+    } else if (type === 'video') {
+      // Always send videos directly
+      sendMessage(null, mediaData);
+    }
+    
+    setShowCameraModal(false);
   };
 
   // Send image with optional caption
-  const handleSendImage = (imageData, caption) => {
+  const handleSendImage = (imageData, caption = "") => {
     if (isConnected) {
-      // Send as a special image message type
-      sendMessage(null, {
-        type: "IMAGE_MESSAGE",
-        imageData: imageData,
-        caption: caption
-      });
-      setImageToShow(null);
+      if (onImageSend) {
+        // Use the new prop if provided
+        onImageSend(imageData);
+      } else {
+        // Fallback to old method
+        sendMessage(null, {
+          type: "IMAGE_MESSAGE",
+          imageData: imageData,
+          caption: caption
+        });
+      }
+      setPastedImage(null);
     }
   };
 
   // Cancel image sending
   const handleCancelImage = () => {
-    setImageToShow(null);
+    setPastedImage(null);
   };
 
   // Auto-adjust textarea height based on content
@@ -290,11 +289,19 @@ const ChatInput = ({
     }
   };
 
+  // Detect when droppedImage changes and set it as pastedImage
+  useEffect(() => {
+    if (droppedImage) {
+      console.log('Received dropped image, opening preview modal');
+      setPastedImage(droppedImage);
+    }
+  }, [droppedImage]);
+
   return (
     <div className="p-4 bg-base-100 border-t border-gray-700 relative">
       {/* Image Preview Modal */}
       <ImagePreviewModal 
-        imageData={imageToShow}
+        imageData={pastedImage}
         onSend={handleSendImage}
         onCancel={handleCancelImage}
       />
@@ -303,7 +310,7 @@ const ChatInput = ({
       <CameraModal
         isOpen={showCameraModal}
         onClose={() => setShowCameraModal(false)}
-        onCapture={handleCameraCapture}
+        onCapture={handleCapturedMedia}
       />
       
       {showEmojiPicker && (
@@ -320,51 +327,51 @@ const ChatInput = ({
         ref={fileInputRef}
         type="file"
         accept="image/*"
-        onChange={handleFileSelect}
+        onChange={handleFileChange}
         className="hidden"
       />
       
-      <form 
-        onSubmit={e => { e.preventDefault(); sendMessage(e); }} 
-        className="flex items-stretch"
-      >
-        <button
-          type="button"
-          onClick={() => setShowEmojiPicker(prev => !prev)}
-          className="px-3 mr-1 border border-gray-500 rounded-l bg-base-200 text-base-content hover:bg-base-300 transition-colors flex items-center justify-center min-w-[40px]"
-          style={{ height: `${textareaHeight}px` }}
-        >
-          😊
-        </button>
-        
-        <button
-          type="button"
-          onClick={triggerFileUpload}
-          className="px-3 mr-1 border border-gray-500 bg-base-200 text-base-content hover:bg-base-300 transition-colors flex items-center justify-center min-w-[40px]"
-          style={{ height: `${textareaHeight}px` }}
-          title="Upload image"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-            <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
-            <path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/>
-          </svg>
-        </button>
-        
-        {/* Add camera button */}
-        {hasCameraSupport && (
+      <form onSubmit={e => { e.preventDefault(); sendMessage(e); }} className="flex items-stretch">
+        <div className="flex mr-1">
+          {/* Emoji button */}
           <button
             type="button"
-            onClick={openCameraModal}
-            className="px-3 mr-1 border border-gray-500 bg-base-200 text-base-content hover:bg-base-300 transition-colors flex items-center justify-center min-w-[40px]"
+            onClick={() => setShowEmojiPicker(prev => !prev)}
+            className="px-3 border border-gray-500 rounded-l bg-base-200 text-base-content hover:bg-base-300 transition-colors flex items-center justify-center min-w-[40px]"
             style={{ height: `${textareaHeight}px` }}
-            title="Take photo"
+            title="Add emoji"
+          >
+            😊
+          </button>
+          
+          {/* Attach file button */}
+          <button
+            type="button"
+            onClick={handleAttachFile}
+            className="px-3 border-t border-b border-gray-500 bg-base-200 text-base-content hover:bg-base-300 transition-colors flex items-center justify-center min-w-[40px]"
+            style={{ height: `${textareaHeight}px` }}
+            title="Upload an image"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-              <path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
-              <path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4H2zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0z"/>
+              <path d="M4.502 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/>
+              <path d="M14.002 13a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2V5A2 2 0 0 1 2 3h10a2 2 0 0 1 2 2v8a2 2 0 0 1-1.998 2zM14 5a1 1 0 0 0-1-1h-10a1 1 0 0 0-1 1v8l2.646-2.354a.5.5 0 0 1 .63-.062l2.66 1.773 3.71-3.71a.5.5 0 0 1 .577-.094l1.777 1.947V5z"/>
             </svg>
           </button>
-        )}
+          
+          {/* Camera button */}
+          <button
+            type="button"
+            onClick={handleOpenCamera}
+            className="px-3 border border-gray-500 rounded-r bg-base-200 text-base-content hover:bg-base-300 transition-colors flex items-center justify-center min-w-[40px]"
+            style={{ height: `${textareaHeight}px` }}
+            title="Take photo or video"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1v6zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4H2z"/>
+              <path d="M8 11a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5zm0 1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM3 6.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0z"/>
+            </svg>
+          </button>
+        </div>
         
         <div className="relative flex-1">
           <textarea

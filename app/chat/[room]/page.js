@@ -8,7 +8,7 @@ import ChatMessage from "../../../components/chat/ChatMessage";
 import ChatInput from "../../../components/chat/ChatInput";
 import UsernameModal from "../../../components/chat/UsernameModal";
 
-const RENDERABLE_TYPES = ["JOIN_ROOM", "LEAVE_ROOM", "CHAT_MESSAGE", "IMAGE_MESSAGE", "ERROR"];
+const RENDERABLE_TYPES = ["JOIN_ROOM", "LEAVE_ROOM", "CHAT_MESSAGE", "IMAGE_MESSAGE", "VIDEO_MESSAGE", "ERROR"];
 
 /**
  * ChatRoom - A real-time chat room component using WebSockets
@@ -34,6 +34,7 @@ export default function ChatRoom() {
   const [showUsernameModal, setShowUsernameModal] = useState(false);
   const [pastedImage, setPastedImage] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [droppedImage, setDroppedImage] = useState(null);
   const messagesEndRef = useRef(null);
   const messagesAreaRef = useRef(null);
   const router = useRouter();
@@ -138,18 +139,22 @@ export default function ChatRoom() {
   const handleDragOver = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    // Keep the dragging state active
+    setIsDragging(true);
   };
 
   const handleDragLeave = (e) => {
     e.preventDefault();
     e.stopPropagation();
     
-    // Check if leaving the message area itself (not its children)
+    // Only turn off dragging state if we're leaving the container (not its children)
+    // This checks if the event target is the element the event handler is attached to
     if (e.currentTarget === e.target) {
       setIsDragging(false);
     }
   };
 
+  // Handle drop event - process the dropped file
   const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -158,7 +163,17 @@ export default function ChatRoom() {
     const files = e.dataTransfer.files;
     if (files && files.length > 0) {
       // Process the first file only
-      processImageFile(files[0]);
+      const file = files[0];
+      console.log("File dropped:", file.name, file.type);
+      
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          console.log("Image loaded from drop");
+          setDroppedImage(event.target.result);
+        };
+        reader.readAsDataURL(file);
+      }
     }
   };
 
@@ -180,13 +195,43 @@ export default function ChatRoom() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
   
-  // Enhanced sendMessage function with support for image messages
+  // Enhanced sendMessage function with support for image and video messages
   const handleSendMessage = (e, customData = null) => {
     if (e) e.preventDefault();
     
-    // If custom data is provided (e.g., image message), send that instead
+    // If custom data is provided (e.g., image or video message), send that instead
     if (customData && connected) {
-      // Add common message properties
+      console.log('Sending custom message data:', customData.type, {
+        hasDataUrl: !!customData.dataUrl,
+        hasMetadata: !!customData.metadata
+      });
+      
+      // For VIDEO_MESSAGE, ensure it has the necessary properties for transport
+      if (customData.type === 'VIDEO_MESSAGE') {
+        // Preserve the dataUrl for transport and essential metadata
+        const transportableData = {
+          type: 'VIDEO_MESSAGE',
+          dataUrl: customData.dataUrl,         // This is what will be transported over WebSocket
+          metadata: customData.metadata || {}, // Include metadata for reconstruction
+          caption: customData.caption || '',
+          blobId: customData.blobId || null,   // Pass through blobId if it exists
+          blobUrl: null                        // We don't pass blobUrl through WebSockets
+        };
+        
+        // Add common message properties
+        const fullMessage = {
+          ...transportableData,
+          system: false,
+          roomId: room,
+          username: username,
+          timestamp: new Date().toISOString()
+        };
+        
+        sendWebSocketMessage(fullMessage);
+        return;
+      }
+      
+      // For other types, preserve the original approach
       const fullMessage = {
         ...customData,
         system: false,
@@ -216,6 +261,23 @@ export default function ChatRoom() {
         content: "Not connected to server. Please wait or refresh the page."
       }]);
     }
+  };
+
+  // Handle image from any source - paste, file input, or drop
+  const handleImageData = (imageData) => {
+    if (!imageData) return;
+    
+    // If we have a dropped image, reset it after processing
+    if (droppedImage && imageData === droppedImage) {
+      setDroppedImage(null);
+    }
+    
+    // Send message with image data
+    handleSendMessage(null, {
+      type: "IMAGE_MESSAGE",
+      imageData: imageData,
+      caption: ""
+    });
   };
   
   const toggleUserList = () => {
@@ -407,6 +469,8 @@ export default function ChatRoom() {
               users={users}
               pastedImage={pastedImage}
               setPastedImage={setPastedImage}
+              droppedImage={droppedImage}
+              onImageSend={handleImageData}
             />
           </div>
         </>

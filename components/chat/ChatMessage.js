@@ -12,10 +12,32 @@ import FormattedMessage from "./FormattedMessage";
  * @param {boolean} props.isTimeBreak - Whether this message starts a new thread after a time gap
  */
 const ChatMessage = ({ message, isCurrentUser, isConnectedToPrevious, isLastFromUser, isTimeBreak }) => {
-  const { system, username, content, timestamp, type, imageData, caption } = message;
+  const { system, username, content, timestamp, type, imageData, caption, videoData, dataUrl, metadata, blobId, blobUrl } = message;
   
-  // Determine if this is an image message
+  // Debug log to check what's coming in for video messages
+  if (type === "VIDEO_MESSAGE") {
+    console.log('Rendering VIDEO_MESSAGE:', { 
+      hasVideoData: !!videoData,
+      hasDataUrl: !!dataUrl,
+      hasMeta: !!metadata,
+      hasBlobId: !!blobId, 
+      hasBlobUrl: !!blobUrl,
+      caption 
+    });
+  }
+  
+  // Determine if this is an image or video message
   const isImageMessage = type === "IMAGE_MESSAGE";
+  const isVideoMessage = type === "VIDEO_MESSAGE";
+  
+  // Create a consolidated videoData object from various possible sources in the message
+  const consolidatedVideoData = isVideoMessage ? {
+    ...videoData,                // If videoData exists, spread its properties
+    dataUrl: dataUrl,            // Add dataUrl if present in message root
+    blobId: blobId,              // Add blobId if present in message root
+    blobUrl: blobUrl,            // Add blobUrl if present in message root
+    metadata: metadata           // Add metadata if present in message root
+  } : null;
   
   // Determine chat position class based on message type
   const chatPositionClass = system ? 'chat-system' : (
@@ -75,6 +97,9 @@ const ChatMessage = ({ message, isCurrentUser, isConnectedToPrevious, isLastFrom
           isImageMessage={isImageMessage} 
           imageData={imageData} 
           imageCaption={caption} 
+          isVideoMessage={isVideoMessage}
+          videoData={consolidatedVideoData || dataUrl} // Send the consolidated data or fallback to direct dataUrl
+          videoCaption={caption}
         />
       </div>
       

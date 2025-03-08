@@ -1,10 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function ImagePreviewModal({ imageData, onSend, onCancel }) {
   const [caption, setCaption] = useState('');
-  
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (imageData && !isOpen) {
+      setIsOpen(true);
+      setCaption(''); // Reset caption when new image is loaded
+    }
+  }, [imageData]);
+
   if (!imageData) return null;
-  
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 animate__animated animate__fadeIn">
       <div className="bg-base-100 p-4 rounded-lg shadow-xl w-full max-w-2xl">
