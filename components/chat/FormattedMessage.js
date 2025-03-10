@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { detectLanguage, highlightCode, copyCodeToClipboard, getSafeLanguage } from '../../utils/codeHighlightUtils';
 import ImageMessage from './ImageMessage';
+import VideoPlayer from './VideoPlayer';
 
 /**
  * Formats message text to highlight:
@@ -16,12 +17,16 @@ import ImageMessage from './ImageMessage';
 export default function FormattedMessage({ 
   text, 
   isImageMessage, 
+  isYoutubeVideo,
   imageData, 
   imageCaption
 }) {
   // Special handling for image messages
   if (isImageMessage && imageData) {
     return <ImageMessage imageData={imageData} caption={imageCaption} />;
+  }
+  if (isYoutubeVideo){
+    return <VideoPlayer url={text}/>
   }
   
   const [copiedIndex, setCopiedIndex] = useState(null);
