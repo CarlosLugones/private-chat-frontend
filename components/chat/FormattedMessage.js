@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+
 import { detectLanguage, highlightCode, copyCodeToClipboard, getSafeLanguage } from '../../utils/codeHighlightUtils';
 import ImageMessage from './ImageMessage';
 import VideoPlayer from './VideoPlayer';
+import MetadataPreview from './MetadataPreview';
 
 /**
  * Formats message text to highlight:
@@ -162,7 +164,7 @@ export default function FormattedMessage({
   const result = [];
   let lastIndex = 0;
   
-  matches.forEach((match, idx) => {
+  matches.forEach(async (match, idx) => {
     // Add text before the match (with preserved line breaks)
     if (match.index > lastIndex) {
       const textSegment = processedText.substring(lastIndex, match.index);
@@ -181,8 +183,10 @@ export default function FormattedMessage({
     // Add the styled match
     switch (match.type) {
       case 'url':
+        
+       
         result.push(
-          <a 
+         /*  <a 
             key={`match-${idx}`}
             href={match.content}
             target="_blank"
@@ -190,7 +194,8 @@ export default function FormattedMessage({
             className="text-blue-400 hover:underline transition-colors duration-200"
           >
             {match.content}
-          </a>
+          </a> */
+          <MetadataPreview key={`match-${idx}`} url={match.content} />
         );
         break;
 
