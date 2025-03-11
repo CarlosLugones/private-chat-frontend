@@ -36,31 +36,31 @@ export function detectLanguage(code) {
   // Simple language detection based on common patterns
   if (code.includes('<html') || code.includes('<div') || code.includes('<body')) {
     return 'markup';
-  } else if (code.includes('import React') || code.includes('function(') || code.includes('=>') || code.includes('const ')) {
+  } else if (code.includes('import React') || (code.includes('function(') && code.includes('{')) || code.includes('=>') || code.includes('const ')) {
     return 'javascript';
   } else if (code.includes('class ') && code.includes('extends ') && code.includes('render()')) {
     return 'jsx';
-  } else if (code.includes('interface ') || code.includes('type ') || code.includes(':') && code.includes('(') && code.includes(')')) {
+  } else if (code.includes('interface ') || code.includes('type ') || (code.includes(':') && code.match(/\w+\s*:\s*\w+/))) {
     return 'typescript';
-  } else if (code.includes('def ') && code.includes(':') && !code.includes('{')) {
+  } else if (code.includes('def ') && code.includes(':') && !code.includes('{') && (code.includes('import ') || code.includes('print(') || code.includes('self.'))) {
     return 'python';
   } else if (code.includes('public class') || code.includes('private class')) {
     return 'java';
-  } else if (code.includes('#include') && code.includes('<iostream>')) {
+  } else if (code.includes('#include') || code.includes('std::') || code.includes('int main(')) {
     return 'cpp';
-  } else if (code.includes('package main') && code.includes('func ')) {
+  } else if (code.includes('package ') && code.includes('func ') && code.includes('import ')) {
     return 'go';
   } else if (code.includes('<?php')) {
     return 'php';
   } else if (code.includes('SELECT') && code.includes('FROM') && code.includes('WHERE')) {
     return 'sql';
-  } else if (code.includes('fn ') && code.includes('->') && code.includes('mut')) {
+  } else if (code.includes('fn ') || code.includes('let ') || code.includes('impl ') || code.includes('use ') || code.includes('::') || code.includes('->') || code.includes('mut')) {
     return 'rust';
-  } else if (code.startsWith('---') || (code.includes(':') && !code.includes('{'))) {
+  } else if (code.startsWith('---') || (code.match(/^[\w-]+:\s*.+$/gm) && !code.includes('{'))) {
     return 'yaml';
   } else if (code.startsWith('```json') || (code.includes('{') && code.includes(':') && code.includes('"'))) {
     return 'json';
-  } else if (code.includes('#!/bin/bash') || code.includes('apt-get') || code.includes('sudo ')) {
+  } else if (code.includes('#!/bin/bash') || code.includes('apt-get') || code.includes('sudo ') || code.includes('echo ') || code.includes('export ') || code.includes('cd ') || code.includes('&&') || code.includes('||')) {
     return 'bash';
   }
 
