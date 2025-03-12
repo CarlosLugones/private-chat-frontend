@@ -163,6 +163,7 @@ export default function FormattedMessage({
   // Build the result by interspersing text with matches
   const result = [];
   let lastIndex = 0;
+  let firstUrlRendered = false;
   
   matches.forEach(async (match, idx) => {
     // Add text before the match (with preserved line breaks)
@@ -183,18 +184,26 @@ export default function FormattedMessage({
     // Add the styled match
     switch (match.type) {
       case 'url':
-        result.push(
-         /*  <a 
-            key={`match-${idx}`}
-            href={match.content}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-400 hover:underline transition-colors duration-200"
-          >
-            {match.content}
-          </a> */
-          <MetadataPreview key={`match-${idx}`} url={match.content} />
-        );
+        if (!firstUrlRendered) {
+          // First URL: render enhanced metadata preview
+          result.push(
+            <MetadataPreview key={`match-${idx}`} url={match.content} />
+          );
+          firstUrlRendered = true;
+        } else {
+          // Subsequent URLs: render as normal links
+          result.push(
+            <a 
+              key={`match-${idx}`}
+              href={match.content}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:underline transition-colors duration-200"
+            >
+              {match.content}
+            </a>
+          );
+        }
         break;
 
       case 'room':
