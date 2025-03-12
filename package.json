@@ -32,7 +32,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/private-chat-frontend.git"
+    "url": "https://github.com/PrivateChatProtocol/private-chat-ui.git"
   },
   "keywords": [
     "chat",
@@ -44,7 +44,7 @@
   "author": "Carlos Lugones",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/CarlosLugones/private-chat-frontend/issues"
+    "url": "https://github.com/PrivateChatProtocol/private-chat-ui/issues"
   },
-  "homepage": "https://github.com/CarlosLugones/private-chat-frontend#readme"
+  "homepage": "https://github.com/PrivateChatProtocol/private-chat-ui#readme"
 }
