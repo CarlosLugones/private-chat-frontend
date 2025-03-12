@@ -183,8 +183,6 @@ export default function FormattedMessage({
     // Add the styled match
     switch (match.type) {
       case 'url':
-        
-       
         result.push(
          /*  <a 
             key={`match-${idx}`}
