@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+
 import { detectLanguage, highlightCode, copyCodeToClipboard, getSafeLanguage } from '../../utils/codeHighlightUtils';
 import ImageMessage from './ImageMessage';
+import VideoPlayer from './VideoPlayer';
+import MetadataPreview from './MetadataPreview';
 
 /**
  * Formats message text to highlight:
@@ -16,12 +19,16 @@ import ImageMessage from './ImageMessage';
 export default function FormattedMessage({ 
   text, 
   isImageMessage, 
+  isYoutubeVideo,
   imageData, 
   imageCaption
 }) {
   // Special handling for image messages
   if (isImageMessage && imageData) {
     return <ImageMessage imageData={imageData} caption={imageCaption} />;
+  }
+  if (isYoutubeVideo){
+    return <VideoPlayer url={text}/>
   }
   
   const [copiedIndex, setCopiedIndex] = useState(null);
@@ -156,8 +163,9 @@ export default function FormattedMessage({
   // Build the result by interspersing text with matches
   const result = [];
   let lastIndex = 0;
+  let firstUrlRendered = false;
   
-  matches.forEach((match, idx) => {
+  matches.forEach(async (match, idx) => {
     // Add text before the match (with preserved line breaks)
     if (match.index > lastIndex) {
       const textSegment = processedText.substring(lastIndex, match.index);
@@ -176,17 +184,26 @@ export default function FormattedMessage({
     // Add the styled match
     switch (match.type) {
       case 'url':
-        result.push(
-          <a 
-            key={`match-${idx}`}
-            href={match.content}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-400 hover:underline transition-colors duration-200"
-          >
-            {match.content}
-          </a>
-        );
+        if (!firstUrlRendered) {
+          // First URL: render enhanced metadata preview
+          result.push(
+            <MetadataPreview key={`match-${idx}`} url={match.content} />
+          );
+          firstUrlRendered = true;
+        } else {
+          // Subsequent URLs: render as normal links
+          result.push(
+            <a 
+              key={`match-${idx}`}
+              href={match.content}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:underline transition-colors duration-200"
+            >
+              {match.content}
+            </a>
+          );
+        }
         break;
 
       case 'room':

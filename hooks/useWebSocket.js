@@ -77,7 +77,7 @@ export function useWebSocket({ room, username, enabled, onMessage, onConnectionC
     connectingRef.current = true;
     console.log(`Initializing WebSocket connection (attempt ${reconnectAttempts.current + 1})`);
     
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'localhost:8000';
+    const backendUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'localhost:8000';
 
     let socket;
     if (process.env.NODE_ENV === 'production') {

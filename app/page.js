@@ -8,7 +8,7 @@ export default function Home() {
   const [roomname, setRoomname] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
-  const serverUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'localhost:8000';
+  const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'localhost:8000';
   const version = require('../package.json').version;
 
   const handleSubmit = (e) => {
@@ -148,7 +148,7 @@ export default function Home() {
           <a href="/about" onClick={() => router.push('/about')}>
             About
           </a>
-          <a href="https://github.com/CarlosLugones/private-chat-frontend" target="_blank">
+          <a href="https://github.com/PrivateChatProtocol" target="_blank">
             Code
           </a>
           <a href="https://t.me/PrivateChatUpdates" target="_blank">

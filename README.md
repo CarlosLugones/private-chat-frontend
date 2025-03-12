@@ -6,12 +6,12 @@ A secure, ephemeral chat application with no history, logs, tracking, or authent
 [![Bun Version](https://img.shields.io/badge/bun-1.1.27-blue.svg)](https://bun.sh/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/CarlosLugones/private-chat-frontend/graphs/commit-activity)
-[![GitHub issues](https://img.shields.io/github/issues/CarlosLugones/private-chat-frontend.svg)](https://github.com/CarlosLugones/private-chat-frontend/issues)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/PrivateChatProtocol/private-chat-ui/graphs/commit-activity)
+[![GitHub issues](https://img.shields.io/github/issues/PrivateChatProtocol/private-chat-ui.svg)](https://github.com/PrivateChatProtocol/private-chat-ui/issues)
 [![Next.js](https://img.shields.io/badge/Next.js-black?style=flat&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![Vercel](https://img.shields.io/badge/Vercel-deployed-000000?style=flat&logo=vercel&logoColor=white)](https://vercel.com)
 
-This client app requires a running instance of the [server](https://github.com/CarlosLugones/private-chat-backend).
+This client app requires a running instance of the [server](https://github.com/PrivateChatProtocol/private-chat-server).
 
 You can host your own instance, or use the one hosted by [Diamonds VPN](https://vpn.diamonds) at [chat.vpn.diamonds](https://chat.vpn.diamonds).
 
@@ -27,7 +27,7 @@ You can host your own instance, or use the one hosted by [Diamonds VPN](https://
 
 ### Deployment
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/git/external?repository-url=https%3A%2F%2Fgithub.com%2FCarlosLugones%2Fprivate-chat-frontend)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/git/external?repository-url=https%3A%2F%2Fgithub.com%2FPrivateChatProtocol%2Fprivate-chat-ui)
 
 ### Prerequisites
 
@@ -38,8 +38,8 @@ You can host your own instance, or use the one hosted by [Diamonds VPN](https://
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/CarlosLugones/private-chat-frontend.git
-   cd private-chat-frontend
+   git clone https://github.com/PrivateChatProtocol/private-chat-ui.git
+   cd private-chat-ui
    ```
 
 2. Install dependencies:
@@ -53,7 +53,7 @@ You can host your own instance, or use the one hosted by [Diamonds VPN](https://
    NEXT_PUBLIC_FRONTEND_URL=localhost:3000
    
    # Backend server URL
-   NEXT_PUBLIC_BACKEND_URL=localhost:8000
+   NEXT_PUBLIC_SERVER_URL=localhost:8000
    ```
 
 ### Development

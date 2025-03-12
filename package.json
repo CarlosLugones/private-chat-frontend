@@ -1,6 +1,6 @@
 {
   "name": "private-chat-frontend",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "description": "A secure, ephemeral chat application with no history or logs",
   "scripts": {
@@ -10,15 +10,17 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emoji-mart/data": "^1.1.2",
     "@tailwindcss/postcss": "^4.0.9",
     "animate.css": "^4.1.1",
+    "cheerio": "^1.0.0",
     "daisyui": "^5.0.0-beta.9",
     "emoji-mart": "^5.6.0",
-    "@emoji-mart/data": "^1.1.2",
     "next": "^15.2.0",
+    "prismjs": "^1.29.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "prismjs": "^1.29.0"
+    "react-player": "^2.16.0"
   },
   "devDependencies": {
     "@types/react": "19.0.10",
@@ -30,7 +32,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/private-chat-frontend.git"
+    "url": "https://github.com/PrivateChatProtocol/private-chat-ui.git"
   },
   "keywords": [
     "chat",
@@ -42,7 +44,7 @@
   "author": "Carlos Lugones",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/CarlosLugones/private-chat-frontend/issues"
+    "url": "https://github.com/PrivateChatProtocol/private-chat-ui/issues"
   },
-  "homepage": "https://github.com/CarlosLugones/private-chat-frontend#readme"
+  "homepage": "https://github.com/PrivateChatProtocol/private-chat-ui#readme"
 }

@@ -34,6 +34,7 @@ const ImageMessage = ({ imageData, caption }) => {
           onLoad={handleImageLoad}
           className="max-h-64 max-w-full rounded object-contain"
         />
+        
         {caption && (
           <p className="mt-1 text-sm text-base-content/80">{caption}</p>
         )}
@@ -51,6 +52,7 @@ const ImageMessage = ({ imageData, caption }) => {
               alt={caption || "Shared image"} 
               className="max-w-full max-h-[90vh] object-contain"
             />
+             
             {caption && (
               <p className="mt-2 text-center text-base-content/80">{caption}</p>
             )}

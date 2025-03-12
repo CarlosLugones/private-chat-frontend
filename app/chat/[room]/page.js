@@ -20,7 +20,7 @@ const RENDERABLE_TYPES = ["JOIN_ROOM", "LEAVE_ROOM", "CHAT_MESSAGE", "IMAGE_MESS
  * - Room-specific chat history
  * 
  * Environment variables:
- * - NEXT_PUBLIC_BACKEND_URL: WebSocket server URL for production
+ * - NEXT_PUBLIC_SERVER_URL: WebSocket server URL for production
  */
 export default function ChatRoom() {
   const { room } = useParams();

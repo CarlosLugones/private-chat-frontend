@@ -14,8 +14,12 @@ import FormattedMessage from "./FormattedMessage";
 const ChatMessage = ({ message, isCurrentUser, isConnectedToPrevious, isLastFromUser, isTimeBreak }) => {
   const { system, username, content, timestamp, type, imageData, caption } = message;
   
+  const youtubeCheckRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:\S+)?/
+  const isImageFromTheWeb = /^(https?:\/\/.*\.(?:jpg|gif|avif))(?:\?.*)?$/i.test(content)
+  const isYoutubeVideo  = youtubeCheckRegex.test(content)
+  
   // Determine if this is an image message
-  const isImageMessage = type === "IMAGE_MESSAGE";
+  const isImageMessage = type === "IMAGE_MESSAGE" || isImageFromTheWeb;
   
   // Determine chat position class based on message type
   const chatPositionClass = system ? 'chat-system' : (
@@ -72,8 +76,9 @@ const ChatMessage = ({ message, isCurrentUser, isConnectedToPrevious, isLastFrom
       <div className={`chat-bubble ${bubbleClass} ${carotClass}`}>
         <FormattedMessage 
           text={content} 
+          isYoutubeVideo={isYoutubeVideo}
           isImageMessage={isImageMessage} 
-          imageData={imageData} 
+          imageData={isImageFromTheWeb ? content: imageData} 
           imageCaption={caption} 
         />
       </div>
